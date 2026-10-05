@@ -11,13 +11,20 @@ import re
 import subprocess
 import sys
 
-sys.path.insert(0, __file__.rsplit("/", 1)[0])
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
 from tok import estimate_tokens  # noqa: E402
 
-OUTCOMES_LOG = os.path.expanduser("~/.openclaw/workspace/orchestration/outcomes.jsonl")
+# outcomes.jsonl ships next to dispatch.py in the repo AND in installs
+# (installer creates it there; status.sh counts that copy). models.yaml's
+# feedback.log ("orchestration/outcomes.jsonl") is relative to this same root.
+OUTCOMES_LOG = os.path.join(HERE, "outcomes.jsonl")
 
-JEV = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..",
-                   "youtube-learn", "scripts", "jev_decide.py")
+# jev_decide.py ships NEXT to dispatch.py in the OS (orchestration/ or a skill's
+# scripts/ dir). Fall back to the youtube-learn skill copy if not alongside.
+_local = os.path.join(HERE, "jev_decide.py")
+JEV = (_local if os.path.exists(_local)
+       else os.path.expanduser("~/.openclaw/skills/youtube-learn/scripts/jev_decide.py"))
 
 TIERS = {
     "chitchat":  {"route": "inline-cheap",  "model": "small/fast", "chunking": False},
@@ -80,8 +87,8 @@ def build_plan(duty: str, with_jev: bool) -> dict:
     tier, why = heuristic(duty)
     jev = ask_jev(duty) if with_jev else None
     if jev and "route" in jev:
-        pick = jev["route"].get("choice") or max(jev["route"].get("probabilities", {}),
-                                                 key=jev["route"].get("probabilities", {}).get)
+        probs = jev["route"].get("probabilities") or {}
+        pick = jev["route"].get("choice") or (max(probs, key=probs.get) if probs else None)
         if pick in TIERS:
             tier = pick
             why = f"jev chose tier '{pick}'"

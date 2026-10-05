@@ -32,7 +32,7 @@ done
 mkdir -p "$OS_DIR"/{orchestration,hooks,second-brain/daily,second-brain/kb,factory/missions,config/orchestration}
 for p in "$SRC"/orchestration/*.py; do cp "$p" "$OS_DIR/orchestration/"; done
 cp "$SRC/config/orchestration/models.yaml" "$OS_DIR/config/orchestration/models.yaml"
-cp "$SRC/hooks/event-map.json" "$OS_DIR/hooks/"
+cp "$SRC/hooks/event-map.json" "$SRC/hooks/README.md" "$OS_DIR/hooks/"
 [ -f "$OS_DIR/orchestration/outcomes.jsonl" ] || : > "$OS_DIR/orchestration/outcomes.jsonl"
 for f in second-brain/MEMORY.template.md second-brain/daily/YYYY-MM-DD.template.md second-brain/kb/README.md \
          factory/GLOBAL_RULES.md factory/FACTORY_RULES.md factory/missions/mission.template.md; do

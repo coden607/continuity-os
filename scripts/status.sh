@@ -10,7 +10,6 @@ echo -e "${B}  ║${C}   🧠 CONTINUITY OS${R}${D} v1.0 · coden607 · LIVE${R}
 echo -e "${B}  ╚══════════════════════════════════════════════════╝${R}"
 echo
 echo -e "${C}  BOOT${R}"
-n=$(ls -d "$OS_DIR"/../.claude/skills/*/ "$HOME"/.claude/skills/*/ 2>/dev/null | grep -cE "$(ls "$OS_DIR/../skills" 2>/dev/null | tr '\n' '|' | sed 's/|$//')") 2>/dev/null
 cli=0; for t in "$HOME/.claude/skills" "$HOME/.codex/skills" "$HOME/.openclaw/skills"; do
   [ -d "$t" ] && c=$(ls "$t" 2>/dev/null | grep -cE "^(route-with-jev|maintain-second-brain|isolate-agent-runs|run-software-factory|enforce-with-hooks|route-interrupts|compress-token-spend)$") && [ "$c" -eq 7 ] && cli=$((cli+1)); done
 ok "7 skills armed across $cli/3 CLI skill dirs"
@@ -25,7 +24,12 @@ if plan=$(python3 "$OS_DIR/orchestration/dispatch.py" --duty "continuity status 
 else warn "dispatch.py heartbeat failed — check python3"; fi
 oc=0; [ -f "$OS_DIR/orchestration/outcomes.jsonl" ] && oc=$(grep -c . "$OS_DIR/orchestration/outcomes.jsonl")
 ok "judge sampling armed (10% random, failures forced) — $oc outcomes logged"
-[ -f "$OS_DIR/hooks/event-map.json" ] && ok "hooks event-map loaded (7 events → regex/Jev/LLM ladder)" || warn "hooks event-map missing"
+if [ -f "$OS_DIR/hooks/event-map.json" ]; then
+  ev=$(python3 -c "import json,sys;print(len(json.load(open(sys.argv[1]))['events']))" "$OS_DIR/hooks/event-map.json" 2>/dev/null || echo "?")
+  ok "hooks event-map loaded ($ev events → regex/Jev/LLM ladder)"
+else
+  warn "hooks event-map missing"
+fi
 echo
 echo -e "${C}  LAYERS${R}"
 dim "ROUTE     · route-with-jev        decisions → Jev at ~1/1000th LLM cost"
