@@ -1,0 +1,13 @@
+{
+  "_readme": "Hook event map — enforce rules at EVENT time, not at 'please' time. Match events (left) to enforcement ladder rungs (right): regex → Jev → LLM judge. Start at the cheapest rung that works; escalate only on misses. See hooks/README.md.",
+  "events": {
+    "pre-commit":        {"rule": "no secrets/keys in staged diff",     "rung": "regex"},
+    "pre-push":          {"rule": "tests green + no force-push to main","rung": "regex+Jev"},
+    "pre-file-write":    {"rule": "no writes outside workspace scope",  "rung": "regex"},
+    "pre-cron-add":      {"rule": "schedule sane? not :00/:30 storm",   "rung": "Jev"},
+    "session-spawn":     {"rule": "subagent got smallest viable context","rung": "regex"},
+    "agent-completion":  {"rule": "completion verified on disk, not trusted from event text","rung": "regex"},
+    "weekly-boundary":   {"rule": "memory audit ran; contradictions pulled","rung": "Jev"},
+    "monthly-boundary":  {"rule": "models.yaml price review done",      "rung": "Jev"}
+  }
+}

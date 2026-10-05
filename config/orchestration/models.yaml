@@ -1,0 +1,86 @@
+# ─────────────────────────────────────────────────────────────
+# ORCHESTRATION MODEL MAP — Steve's AI layer, tier → model routing
+# Refreshed: 2026-10-05 · Sources: OpenRouter market data (Sep 2026)
+# Review cadence: MONTHLY (model market rots fast — prices shift,
+# new models drop). Next review: 2026-11-01
+# ─────────────────────────────────────────────────────────────
+
+meta:
+  refreshed: "2026-10-05"
+  review_cadence: monthly
+  router: "duty-dispatch + Jev first-pass"
+  jev:
+    classify_model: "typesafe/jev-1.13-20260917"
+    cost_note: "decision calls input-billed only (~$0.042/M, output free)"
+
+tiers:
+  simple:
+    when: "extraction, classification, rewrites, short summaries, formatting"
+    primary: "openrouter/openai/gpt-6-luna"
+    fallback: "openrouter/deepseek/deepseek-v4-flash"
+    cost_1m: "$0.10/$0.50 · $0.08/$0.15"
+    max_thinking: low
+
+  chitchat:
+    when: "casual conversation, quick Q&A, morale replies"
+    primary: "openrouter/deepseek/deepseek-v4-flash"
+    fallback: "openrouter/openai/gpt-6-luna"
+    cost_1m: "$0.08/$0.15"
+    max_thinking: none
+    note: "NEVER spend frontier tokens on banter — that's how bills die"
+
+  reasoning:
+    when: "analysis, planning, math, multi-step logic, judgment calls"
+    primary: "openrouter/anthropic/claude-sonnet-5"
+    fallback: "openrouter/z-ai/glm-5.3"
+    cost_1m: "$2/$10 · $0.84/$2.64"
+    max_thinking: medium
+
+  code:
+    when: "patches, migrations, tests, scripts, debugging"
+    primary: "openrouter/anthropic/claude-opus-5.5"
+    cheap_alt: "openrouter/z-ai/glm-5.3"
+    fallback: "openrouter/deepseek/deepseek-v4-pro-0813"
+    cost_1m: "$4/$20 · $0.84/$2.64 · $0.66/$1.98"
+    max_thinking: high
+    note: "mechanical code → cheap_alt; architecture/debugging → primary"
+
+  research:
+    when: "web research, cited summaries, competitive intel"
+    primary: "openrouter/openai/gpt-6-sol"
+    escalate: "openrouter/openai/gpt-6-astra"
+    fallback: "openrouter/anthropic/claude-sonnet-5"
+    cost_1m: "$2/$10 · $10/$50"
+    max_thinking: medium
+    note: "escalate to Astra only for deep reports with hard stakes"
+
+  long-doc:
+    when: "transcripts, huge PDFs, repo scans, big corpora"
+    primary: "openrouter/moonshotai/kimi-k3"
+    fallback: "openrouter/z-ai/glm-5.3"
+    cost_1m: "$3/$15 · $0.84/$2.64"
+    max_thinking: medium
+    note: "both have 1M+ context — chunk anyway if >60% of window"
+
+  creative:
+    when: "ad copy, storytelling, voice-heavy writing"
+    primary: "openrouter/anthropic/claude-sonnet-5"
+    fallback: "openrouter/google/gemini-3.8-flash"
+    cost_1m: "$2/$10 · $0.75/$3.75"
+    max_thinking: low
+
+  frontier:
+    when: "final review of high-stakes output, hardest problems"
+    primary: "openrouter/openai/gpt-6-astra"
+    fallback: "openrouter/anthropic/claude-fable-5.1"
+    cost_1m: "$10/$50"
+    max_thinking: max
+    note: "needs Steve's explicit ask OR a grade-triggered escalation"
+
+# ── Quality feedback rules (the learning loop) ──
+feedback:
+  log: "orchestration/outcomes.jsonl"
+  grade_every: "non-trivial routed job (skip chitchat/simple)"
+  retry_rule: "grade < 3/5 → redo one tier up, log both attempts"
+  bump_rule: "2 consecutive grades < 3 on same task_type → permanently raise that task_type's tier"
+  human_override: "Steve can pin any task_type to any tier — his word beats the loop"
