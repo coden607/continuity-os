@@ -3,7 +3,8 @@
 # curl -fsSL https://raw.githubusercontent.com/coden607/continuity-os/main/scripts/install.sh | bash
 # Installs: 7 skills into every detected CLI skills dir + the OS scaffold into ~/continuity-os
 set -uo pipefail
-SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"   # repo root when run from clone
+SRC=""
+if [[ -n "${BASH_SOURCE[0]:-}" ]]; then SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"; fi
 OS_DIR="${CONTINUITY_HOME:-$HOME/continuity-os}"
 say(){ printf '\033[1;32m✔\033[0m %s\n' "$*"; }
 warn(){ printf '\033[1;31m✖\033[0m %s\n' "$*"; }
