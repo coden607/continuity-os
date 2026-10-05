@@ -1,0 +1,39 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>Continuity OS — Live Preview</title>
+<style>
+body{background:#0a0e14;color:#e6edf3;font-family:-apple-system,'Segoe UI',sans-serif;margin:0;padding:28px;max-width:900px;margin:0 auto}
+h1{font-size:26px;margin:0} .sub{color:#7d8590;margin:4px 0 18px}
+.mono{font-family:ui-monospace,Menlo,monospace} .dim{color:#7d8590}
+.banner{background:linear-gradient(90deg,#1f6feb33,#39d35322);border:1px solid #30363d;border-radius:12px;padding:16px 20px;margin-bottom:18px}
+.term{background:#010409;border:1px solid #30363d;border-radius:10px;padding:14px 16px;margin:14px 0}
+.bl{color:#3fb950;font-size:13px;line-height:1.7}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:12px 0}
+.card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px}
+.ic{font-size:22px} .nm{color:#58a6ff;font-size:13px;margin:6px 0 4px} .ds{font-size:12px;color:#8b949e}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+td,th{border-bottom:1px solid #21262d;padding:7px 8px;text-align:left;vertical-align:top} th{color:#8b949e;font-weight:600}
+.layer{display:flex;gap:14px;align-items:center;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:9px 14px;margin:6px 0}
+.lk{color:#58a6ff;width:110px} .lv{color:#3fb950;font-size:12px} .ls{color:#8b949e;font-size:12px}
+.cmd{background:#010409;border:1px solid #30363d;border-radius:8px;padding:10px 14px;color:#79c0ff;font-size:13px;margin-top:14px}
+h2{font-size:16px;margin:22px 0 6px;border-bottom:1px solid #21262d;padding-bottom:6px}
+a{color:#58a6ff}
+</style></head><body>
+<div class="banner"><h1>🧠 CONTINUITY OS <span class="dim" style="font-size:14px">v1.0 · coden607 · LIVE</span></h1>
+<div class="sub">Your AI work that survives sessions, machines, and model swaps. <a href="https://github.com/coden607/continuity-os">github.com/coden607/continuity-os</a></div></div>
+<h2>Boot sequence (real, just ran)</h2><div class="term"><div class='bl mono'>[ok] mounting second-brain ... MEMORY + daily + KB</div><div class='bl mono'>[ok] loading 7 skills into CLIs</div><div class='bl mono'>[ok] models.yaml: 8 tiers mapped</div><div class='bl mono'>[ok] dispatch.py live → tier=simple route=inline-cheap</div><div class='bl mono'>[ok] judge sampling armed (10%, 0 outcomes logged)</div><div class='bl mono'>[ok] hooks event-map loaded</div><div class='bl mono'>[ok] continuity engine ONLINE — work now survives sessions</div></div>
+<h2>Layers — all live</h2><div class='layer'><span class='lk mono'>ROUTE</span><span class='lv'>● LIVE</span><span class='ls mono'>route-with-jev</span></div><div class='layer'><span class='lk mono'>REMEMBER</span><span class='lv'>● LIVE</span><span class='ls mono'>maintain-second-brain</span></div><div class='layer'><span class='lk mono'>ISOLATE</span><span class='lv'>● LIVE</span><span class='ls mono'>isolate-agent-runs</span></div><div class='layer'><span class='lk mono'>BUILD</span><span class='lv'>● LIVE</span><span class='ls mono'>run-software-factory</span></div><div class='layer'><span class='lk mono'>ENFORCE</span><span class='lv'>● LIVE</span><span class='ls mono'>enforce-with-hooks</span></div><div class='layer'><span class='lk mono'>INTERRUPT</span><span class='lv'>● LIVE</span><span class='ls mono'>route-interrupts</span></div><div class='layer'><span class='lk mono'>SPEND</span><span class='lv'>● LIVE</span><span class='ls mono'>compress-token-spend</span></div>
+<h2>The seven skills</h2><div class="grid"><div class='card'><div class='ic'>💰</div><div class='mono nm'>compress-token-spend</div><div class='ds'>&gt;-
+  Cut token and dollar spend across every model call without cutting quality.…</div></div><div class='card'><div class='ic'>🪝</div><div class='mono nm'>enforce-with-hooks</div><div class='ds'>Design, debug, and deploy hooks that enforce rules deterministically when prompt-based rules fail. Use when th…</div></div><div class='card'><div class='ic'>🔒</div><div class='mono nm'>isolate-agent-runs</div><div class='ds'>&gt;-
+  Isolate autonomous / yolo-mode agent runs so a runaway agent cannot destroy
+  the host — sandbox the run,…</div></div><div class='card'><div class='ic'>🧠</div><div class='mono nm'>maintain-second-brain</div><div class='ds'>&gt;-
+  Classification and audit layer for the second-brain memory stack:
+  MEMORY.md + memory/YYYY-MM-DD.md + le…</div></div><div class='card'><div class='ic'>📥</div><div class='mono nm'>route-interrupts</div><div class='ds'>&gt;-
+  Handle mid-task user interruptions without losing the active task.…</div></div><div class='card'><div class='ic'>⚡</div><div class='mono nm'>route-with-jev</div><div class='ds'>&gt;-
+  Route decisions through Jev (typesafe/jev-1.13, the &quot;system-one&quot; decision
+  model) via OpenRouter&#x27;s /v1/s…</div></div><div class='card'><div class='ic'>🏭</div><div class='mono nm'>run-software-factory</div><div class='ds'>&gt;-
+  Build and run an autonomous software factory (&quot;dark factory&quot;): PRDs or
+  issues go in, validated reviewed…</div></div></div>
+<h2>Model tiers (models.yaml, refreshed 2026-10-05)</h2>
+<table><tr><th>Tier</th><th>When</th><th>Primary</th><th>$/1M in/out</th></tr><tr><td><b>simple</b></td><td>extraction, classification, rewrites, short summaries, formatting</td><td class='mono'>openrouter/openai/gpt-6-luna</td><td class='mono dim'>$0.10/$0.50 · $0.08/$0.15</td></tr><tr><td><b>chitchat</b></td><td>casual conversation, quick Q&amp;A, morale replies</td><td class='mono'>openrouter/deepseek/deepseek-v4-flash</td><td class='mono dim'>$0.08/$0.15</td></tr><tr><td><b>reasoning</b></td><td>analysis, planning, math, multi-step logic, judgment calls</td><td class='mono'>openrouter/anthropic/claude-sonnet-5</td><td class='mono dim'>$2/$10 · $0.84/$2.64</td></tr><tr><td><b>code</b></td><td>patches, migrations, tests, scripts, debugging</td><td class='mono'>openrouter/anthropic/claude-opus-5.5</td><td class='mono dim'>$4/$20 · $0.84/$2.64 · $0.66/$1.98</td></tr><tr><td><b>research</b></td><td>transcripts, huge PDFs, repo scans, big corpora</td><td class='mono'>openrouter/moonshotai/kimi-k3</td><td class='mono dim'>$3/$15 · $0.84/$2.64</td></tr><tr><td><b>creative</b></td><td>ad copy, storytelling, voice-heavy writing</td><td class='mono'>openrouter/anthropic/claude-sonnet-5</td><td class='mono dim'>$2/$10 · $0.75/$3.75</td></tr><tr><td><b>frontier</b></td><td>final review of high-stakes output, hardest problems</td><td class='mono'>openrouter/openai/gpt-6-astra</td><td class='mono dim'>$10/$50</td></tr></table>
+<h2>Live routing proof</h2><div class="term"><div class="bl mono">dispatch.py --duty "preview launch..."<br>→ tier: simple · route: inline-cheap · why: no keyword matched; default tier &#x27;simple&#x27;</div></div>
+<div class="cmd mono">curl -fsSL https://raw.githubusercontent.com/coden607/continuity-os/main/scripts/install.sh | bash</div>
+</body></html>
