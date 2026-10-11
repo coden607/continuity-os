@@ -29,18 +29,21 @@ for t in "$HOME/.claude/skills" "$HOME/.codex/skills" "$HOME/.openclaw/skills" "
 done
 
 # --- OS scaffold ---
-mkdir -p "$OS_DIR"/{orchestration/archon,rag,guardrails,integrations,learning,hooks,second-brain/daily,second-brain/knowledge-base,factory/prd,factory/missions,config/orchestration}
+mkdir -p "$OS_DIR"/{orchestration/archon,rag,guardrails,integrations,learning,factory/architecture,factory/prd,factory/missions,hooks,second-brain/daily,second-brain/knowledge-base,config/orchestration}
 cp -R "$SRC/orchestration/"* "$OS_DIR/orchestration/" 2>/dev/null || true
 cp -R "$SRC/rag/"* "$OS_DIR/rag/" 2>/dev/null || true
 cp -R "$SRC/guardrails/"* "$OS_DIR/guardrails/" 2>/dev/null || true
 cp -R "$SRC/integrations/"* "$OS_DIR/integrations/" 2>/dev/null || true
 cp -R "$SRC/learning/"* "$OS_DIR/learning/" 2>/dev/null || true
+cp -R "$SRC/factory/"* "$OS_DIR/factory/" 2>/dev/null || true
 cp -R "$SRC/second-brain/"* "$OS_DIR/second-brain/" 2>/dev/null || true
 cp "$SRC/config/orchestration/models.yaml" "$OS_DIR/config/orchestration/models.yaml" 2>/dev/null || true
 cp "$SRC/hooks/event-map.json" "$SRC/hooks/README.md" "$OS_DIR/hooks/" 2>/dev/null || true
 [ -f "$OS_DIR/orchestration/outcomes.jsonl" ] || : > "$OS_DIR/orchestration/outcomes.jsonl"
 for f in second-brain/MEMORY.template.md second-brain/daily/YYYY-MM-DD.template.md second-brain/kb/README.md \
-         factory/GLOBAL_RULES.md factory/FACTORY_RULES.md factory/missions/mission.template.md factory/prd/PRD-001-UNIVERSAL-FOUNDATION.md; do
+         factory/GLOBAL_RULES.md factory/FACTORY_RULES.md factory/missions/mission.template.md \
+         factory/prd/PRD-001-UNIVERSAL-FOUNDATION.md factory/prd/PRD-002-AUTONOMOUS-TASK-FACTORY.md \
+         factory/architecture/ADR-002-AUTONOMOUS-TASK-FACTORY.md; do
   [ -f "$SRC/$f" ] && [ ! -f "$OS_DIR/$f" ] && cp "$SRC/$f" "$OS_DIR/$f"
 done
 say "OS scaffold → $OS_DIR (existing files preserved)"
