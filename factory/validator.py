@@ -50,7 +50,7 @@ class ValidationVerdict:
 
 
 class HoldoutValidator:
-    def __init__(self, max_files: int = 10, allow_test_modification: bool = False):
+    def __init__(self, max_files: int = 25, allow_test_modification: bool = False):
         self.max_files = max_files
         self.allow_test_modification = allow_test_modification
 

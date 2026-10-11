@@ -106,6 +106,8 @@
   const btnAuditBrain = document.getElementById('btnAuditBrain');
   const btnExportCrew = document.getElementById('btnExportCrew');
   const btnExportLangGraph = document.getElementById('btnExportLangGraph');
+  const btnExportLangChain = document.getElementById('btnExportLangChain');
+  const btnExportLlamaIndex = document.getElementById('btnExportLlamaIndex');
   const brainFactoryOutput = document.getElementById('brainFactoryOutput');
 
   // Factory Worktree & Worker Elements
@@ -1035,6 +1037,32 @@
         const res = await fetchJson('/api/integrations/langgraph');
         brainFactoryOutput.innerHTML = `<pre class="code-box">${escapeHtml(JSON.stringify(res, null, 2))}</pre>`;
         showToast('Exported LangGraph configuration', 'success');
+      } catch (err) {
+        brainFactoryOutput.innerHTML = `<pre class="code-box" style="color:var(--accent-red);">${escapeHtml(err.message)}</pre>`;
+      }
+    });
+  }
+
+  if (btnExportLangChain) {
+    btnExportLangChain.addEventListener('click', async () => {
+      brainFactoryOutput.innerHTML = '<pre class="code-box">Exporting LangChain LCEL & Tools configuration...</pre>';
+      try {
+        const res = await fetchJson('/api/integrations/langchain');
+        brainFactoryOutput.innerHTML = `<pre class="code-box">${escapeHtml(JSON.stringify(res, null, 2))}</pre>`;
+        showToast('Exported LangChain configuration', 'success');
+      } catch (err) {
+        brainFactoryOutput.innerHTML = `<pre class="code-box" style="color:var(--accent-red);">${escapeHtml(err.message)}</pre>`;
+      }
+    });
+  }
+
+  if (btnExportLlamaIndex) {
+    btnExportLlamaIndex.addEventListener('click', async () => {
+      brainFactoryOutput.innerHTML = '<pre class="code-box">Exporting LlamaIndex query engine specification...</pre>';
+      try {
+        const res = await fetchJson('/api/integrations/llamaindex');
+        brainFactoryOutput.innerHTML = `<pre class="code-box">${escapeHtml(JSON.stringify(res, null, 2))}</pre>`;
+        showToast('Exported LlamaIndex configuration', 'success');
       } catch (err) {
         brainFactoryOutput.innerHTML = `<pre class="code-box" style="color:var(--accent-red);">${escapeHtml(err.message)}</pre>`;
       }

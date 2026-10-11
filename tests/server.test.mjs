@@ -444,6 +444,15 @@ describe('Continuity OS · Universal HTTP Server', () => {
     const lgRes = await request(testPort, '/api/integrations/langgraph');
     assert.equal(lgRes.status, 200);
     assert.equal(lgRes.body.graph_type, 'LangGraph_StateGraph');
+
+    const lcRes = await request(testPort, '/api/integrations/langchain');
+    assert.equal(lcRes.status, 200);
+    assert.equal(lcRes.body.chain.chain_type, 'LangChain_LCEL_Pipeline');
+    assert.ok(Array.isArray(lcRes.body.tools));
+
+    const llamaRes = await request(testPort, '/api/integrations/llamaindex');
+    assert.equal(llamaRes.status, 200);
+    assert.equal(llamaRes.body.engine_type, 'LlamaIndex_VectorIndexRetriever');
   });
 
   it('extracts self-learning invariants and handles n8n workflow triggers', async () => {
@@ -489,6 +498,7 @@ describe('Continuity OS · Universal HTTP Server', () => {
       body: {
         baseRef: 'main',
         allowTestModification: true,
+        maxFiles: 30,
       },
     });
     assert.equal(valRes.status, 200);

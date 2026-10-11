@@ -92,3 +92,59 @@ class N8NAdapter:
             "source": "continuity-os",
             "body": data
         }
+
+
+class LangChainAdapter:
+    @staticmethod
+    def export_chain(roles: Dict[str, Any], goal: str) -> Dict[str, Any]:
+        """Exports Archon 2 agent roles to LangChain LCEL (LangChain Expression Language) pipeline schema."""
+        steps = []
+        for role_key, role_obj in roles.items():
+            name = getattr(role_obj, "name", role_key)
+            steps.append({
+                "runnable": f"PromptTemplate | ChatModel({name}) | StrOutputParser",
+                "role": name,
+                "input_key": "input" if len(steps) == 0 else f"{steps[-1]['role']}_output",
+                "output_key": f"{name}_output"
+            })
+        return {
+            "chain_type": "LangChain_LCEL_Pipeline",
+            "goal": goal,
+            "steps": steps,
+            "memory": "ContinuitySQLiteChatMessageHistory"
+        }
+
+    @staticmethod
+    def export_tools() -> List[Dict[str, Any]]:
+        """Exports Continuity OS capabilities as LangChain StructuredTools."""
+        return [
+            {
+                "name": "continuity_rag_search",
+                "description": "Searches Continuity OS hybrid vector and semantic store using cosine similarity and BM25.",
+                "args_schema": {"query": "string", "limit": "integer"}
+            },
+            {
+                "name": "continuity_jev_decision_gate",
+                "description": "Evaluates policy compliance, action gating, or retry/stop decisions via Jev system-one.",
+                "args_schema": {"state": "string", "bank": "string"}
+            },
+            {
+                "name": "continuity_second_brain_audit",
+                "description": "Audits 3-tier Second Brain memory for stale facts, contradictions, and rot score.",
+                "args_schema": {}
+            }
+        ]
+
+
+class LlamaIndexAdapter:
+    @staticmethod
+    def export_query_engine_spec() -> Dict[str, Any]:
+        """Exports Continuity OS RAG engine to LlamaIndex QueryEngine specification."""
+        return {
+            "engine_type": "LlamaIndex_VectorIndexRetriever",
+            "node_parser": "DoclingHierarchicalNodeParser",
+            "vector_store": "ContinuitySQLiteVectorStore",
+            "similarity_top_k": 5,
+            "response_synthesizer": "compact_and_refine",
+            "metadata_filters": ["doc_id", "strategy", "parent_section"]
+        }

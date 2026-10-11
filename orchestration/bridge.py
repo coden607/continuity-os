@@ -25,7 +25,7 @@ from orchestration.archon.engine import ArchonEngine
 from factory.engine import DarkFactoryEngine
 SecondBrainEngine = importlib.import_module("second-brain.engine").SecondBrainEngine
 from rag.engine import RAGEngine
-from integrations.adapters import CrewAIAdapter, LangGraphAdapter, N8NAdapter
+from integrations.adapters import CrewAIAdapter, LangGraphAdapter, N8NAdapter, LangChainAdapter, LlamaIndexAdapter
 from learning.engine import SelfLearningEngine
 from factory.worktree import WorktreeManager
 from factory.pipeline import FactoryPipelineDispatcher
@@ -77,6 +77,7 @@ def main():
     factory_val.add_argument("--worktree-path", default="")
     factory_val.add_argument("--base-ref", default="main")
     factory_val.add_argument("--allow-test-modification", action="store_true", default=False)
+    factory_val.add_argument("--max-files", type=int, default=25)
 
     factory_wk_enq = subparsers.add_parser("factory-worker-enqueue")
     factory_wk_enq.add_argument("--issue-id", required=True)
@@ -112,6 +113,8 @@ def main():
     # 6. Integrations
     crew_export = subparsers.add_parser("crewai-export")
     langgraph_export = subparsers.add_parser("langgraph-export")
+    langchain_export = subparsers.add_parser("langchain-export")
+    llamaindex_export = subparsers.add_parser("llamaindex-export")
     n8n_webhook = subparsers.add_parser("n8n-webhook")
     n8n_webhook.add_argument("--payload", required=True)
 
@@ -181,7 +184,7 @@ def main():
 
     elif args.subcommand == "factory-validate":
         target_path = Path(args.worktree_path) if args.worktree_path else ROOT_DIR
-        validator = HoldoutValidator(allow_test_modification=args.allow_test_modification)
+        validator = HoldoutValidator(max_files=args.max_files, allow_test_modification=args.allow_test_modification)
         verdict = validator.validate_worktree(target_path, base_ref=args.base_ref)
         print(json.dumps({
             "passed": verdict.passed,
@@ -286,6 +289,21 @@ def main():
         ]
         lg = LangGraphAdapter.export_graph({"tasks": tasks})
         print(json.dumps(lg, indent=2))
+
+    elif args.subcommand == "langchain-export":
+        roles = {
+            "architect": type("Obj", (), {"name": "Architect"})(),
+            "builder": type("Obj", (), {"name": "Builder"})(),
+            "critic": type("Obj", (), {"name": "Critic"})(),
+            "verifier": type("Obj", (), {"name": "Verifier"})()
+        }
+        chain = LangChainAdapter.export_chain(roles, "Autonomous Feature Delivery")
+        tools = LangChainAdapter.export_tools()
+        print(json.dumps({"chain": chain, "tools": tools}, indent=2))
+
+    elif args.subcommand == "llamaindex-export":
+        spec = LlamaIndexAdapter.export_query_engine_spec()
+        print(json.dumps(spec, indent=2))
 
     elif args.subcommand == "n8n-webhook":
         payload = json.loads(args.payload)

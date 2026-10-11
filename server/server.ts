@@ -728,6 +728,9 @@ ${nonGoals || '- Complex third-party integrations\n- Multi-region compliance cer
           if (body.allowTestModification) {
             args.push('--allow-test-modification');
           }
+          if (body.maxFiles) {
+            args.push('--max-files', String(body.maxFiles));
+          }
           if (body.worktreePath) {
             args.push('--worktree-path', body.worktreePath);
           }
@@ -796,6 +799,16 @@ ${nonGoals || '- Complex third-party integrations\n- Multi-region compliance cer
 
         if (pathname === '/api/integrations/langgraph' && method === 'GET') {
           const { stdout } = await execFileAsync('python3', [join(ROOT_DIR, 'orchestration', 'bridge.py'), 'langgraph-export']);
+          return sendJson(res, 200, JSON.parse(stdout));
+        }
+
+        if (pathname === '/api/integrations/langchain' && method === 'GET') {
+          const { stdout } = await execFileAsync('python3', [join(ROOT_DIR, 'orchestration', 'bridge.py'), 'langchain-export']);
+          return sendJson(res, 200, JSON.parse(stdout));
+        }
+
+        if (pathname === '/api/integrations/llamaindex' && method === 'GET') {
+          const { stdout } = await execFileAsync('python3', [join(ROOT_DIR, 'orchestration', 'bridge.py'), 'llamaindex-export']);
           return sendJson(res, 200, JSON.parse(stdout));
         }
 
