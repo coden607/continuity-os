@@ -13,7 +13,13 @@
     "test": "node --env-file-if-exists=.env --experimental-strip-types --test tests/*.test.mjs",
     "typecheck": "tsc --noEmit",
     "status": "bash scripts/status.sh",
-    "manage": "python3 manage.py"
+    "manage": "python3 manage.py",
+    "factory": "python3 manage.py factory",
+    "worker": "python3 factory/worker.py --daemon",
+    "brain": "python3 manage.py brain",
+    "archon": "python3 manage.py archon",
+    "guardrails": "python3 manage.py guardrails",
+    "jev": "python3 manage.py jev"
   },
   "devDependencies": {
     "@types/node": "26.6.3",
