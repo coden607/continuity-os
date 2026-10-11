@@ -1,0 +1,17 @@
+{
+  "name": "Continuity OS Universal App",
+  "short_name": "ContinuityOS",
+  "description": "Universal fullstack PWA template with SQLite, Node.js API, and AI orchestration",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0e14",
+  "theme_color": "#1f6feb",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#120d08">
+  <meta name="description" content="Busy-line takeout order recovery simulation for local independent restaurants.">
+  <meta name="robots" content="noindex,nofollow">
+  <title id="pageTitle">Busy-Line Recovery · Interactive Demo</title>
+  <link rel="stylesheet" href="/busy-call.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="brand-mark" id="brandMark" aria-hidden="true">📞</div>
+      <div class="hero-copy">
+        <p class="eyebrow" id="heroEyebrow">Local Takeout Recovery · Interactive Prototype</p>
+        <h1 id="heroHeading">Missed-Call Order Recovery</h1>
+        <p class="sub" id="heroSub">See what happens when a customer calls during peak dinner rush and the line is busy.</p>
+      </div>
+      <a class="call-link" id="heroCallLink" href="tel:+16075550199">Call Takeout <span id="heroPhoneLabel">(607) 555-0199</span></a>
+    </div>
+  </header>
+
+  <div class="demo-banner" role="status">
+    <strong>Browser-only simulation</strong>
+    <span>No real calls placed. No texts sent. This demo simulates carrier-forwarding and instant SMS text-back on mobile devices.</span>
+  </div>
+
+  <main id="main" class="shell">
+    <section class="sim-card" aria-labelledby="simHeading">
+      <div class="sim-copy">
+        <p class="eyebrow">Simulation · no call is placed, no text is sent</p>
+        <h2 id="simHeading">How a missed call becomes a saved order</h2>
+        <p id="simStepLabel" class="sim-step">Step 1 of 5</p>
+        <p id="simCaption" class="sim-caption" tabindex="-1" aria-live="polite"></p>
+        <div class="sim-controls">
+          <button id="simNext" class="primary" type="button">Start: a customer calls</button>
+          <button id="simKey1" class="primary" type="button" hidden>Press 1</button>
+          <button id="simDecline" class="secondary" type="button" hidden>Don't press anything</button>
+          <button id="simRestart" class="quiet-button" type="button" hidden>Restart</button>
+        </div>
+      </div>
+      <div class="sim-phone" role="group" aria-label="Simulated phone screen">
+        <div id="simScreen" class="sim-screen" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <div class="intro-card">
+      <div>
+        <p class="eyebrow">The Walkaway Math</p>
+        <h2>Why busy signals cost $1,500+/mo</h2>
+        <p>During peak dinner rushes (Friday &amp; Saturday 5 to 7:30 PM), phone lines get tied up. Hungry diners don't leave voicemails—they hang up and call another restaurant or order via third-party apps that take 25%–30%.</p>
+        <p class="muted" style="margin-top: 8px;"><strong>8–15 missed calls/weekend × $42 avg ticket = $336–$630/weekend ($1,340–$2,500/month) in lost orders.</strong></p>
+      </div>
+      <div class="primary-actions">
+        <a class="primary" id="ctaCall" href="tel:+16075550199">Test Tap-to-Call</a>
+        <a class="secondary" id="ctaContact" href="mailto:coden607@gmail.com?subject=Busy-Line%20Recovery%20Free%20Trial">Request Free 2-Week Trial</a>
+      </div>
+    </div>
+
+    <div class="reservation-prompt">
+      <h2>Zero Risk · Zero Disruptions for Operators</h2>
+      <p>• <strong>Your phone number stays 100% the same:</strong> carrier-level busy/no-answer forwarding handles peak surges.</p>
+      <p>• <strong>Zero changes to your website:</strong> callers get a direct link to your existing menu.</p>
+      <p>• <strong>No hardware or staff friction:</strong> kitchen and counter staff don't touch new tablets or learn new software.</p>
+      <p>• <strong>Free 2-week trial:</strong> run it for 14 days to measure captured orders with zero upfront fee. Contact Stephen Blanford (Broome County, NY · <a href="mailto:coden607@gmail.com">coden607@gmail.com</a>).</p>
+    </div>
+  </main>
+
+  <script src="/busy-call.js"></script>
+</body>
+</html>

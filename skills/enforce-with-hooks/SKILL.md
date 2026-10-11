@@ -3,6 +3,20 @@ name: enforce-with-hooks
 description: Design, debug, and deploy hooks that enforce rules deterministically when prompt-based rules fail. Use when the agent ignores instructions or rules, when a guarantee must fire every single time (tests run, secrets protected, style kept, budget capped), when choosing hook event types (PreToolUse, PostToolUse, Stop, SessionStart), when deciding between regex/Jev/LLM classification for hook logic and weighing cost vs false positives, when building guardrails vs reminders, when hooking the OpenClaw or Claude Code agent lifecycle, or when debugging rule drift with ablation/holdout scenarios.
 ---
 
+## Grok runtime
+
+This skill is installed for Grok, not Claude Code. Follow the procedure below with these substitutions:
+
+- Do not invoke slash commands. Name the skill and do the steps.
+- `CLAUDE.md` means the repo rules file that exists (`CLAUDE.md`, `AGENTS.md`, or neither). Do not require `.claude/`.
+- There are no Claude subagents. Do the step inline.
+- Browser work uses the built-in browser tools. Do not require the `agent-browser` CLI.
+- Desktop control is not available in this sandbox. Skip `drive-screen` steps and say so.
+- GitHub work uses the connected GitHub tools.
+- Jev decisions use the local `jev-gate` skill. Do not require OpenRouter `/v1/systemone`.
+- Hooks cannot be registered in Grok settings. Describe the guarantee and enforce it in the current run.
+
+
 # Enforce With Hooks
 
 Rules in prompts are **probabilistic** — the model may follow them. Hooks are

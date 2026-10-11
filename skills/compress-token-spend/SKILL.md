@@ -14,6 +14,20 @@ description: >-
   "grade a sample", "which model should handle this", "token budget".
 ---
 
+## Grok runtime
+
+This skill is installed for Grok, not Claude Code. Follow the procedure below with these substitutions:
+
+- Do not invoke slash commands. Name the skill and do the steps.
+- `CLAUDE.md` means the repo rules file that exists (`CLAUDE.md`, `AGENTS.md`, or neither). Do not require `.claude/`.
+- There are no Claude subagents. Do the step inline.
+- Browser work uses the built-in browser tools. Do not require the `agent-browser` CLI.
+- Desktop control is not available in this sandbox. Skip `drive-screen` steps and say so.
+- GitHub work uses the connected GitHub tools.
+- Jev decisions use the local `jev-gate` skill. Do not require OpenRouter `/v1/systemone`.
+- Hooks cannot be registered in Grok settings. Describe the guarantee and enforce it in the current run.
+
+
 # Compress Token Spend
 
 Spend tokens like they cost money — because they do. Five levers, in order of typical impact:

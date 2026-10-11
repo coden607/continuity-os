@@ -20,7 +20,7 @@ fi
 echo "== Continuity OS =="
 # --- skills → every detected CLI ---
 installed=0
-for t in "$HOME/.claude/skills" "$HOME/.codex/skills" "$HOME/.openclaw/skills"; do
+for t in "$HOME/.claude/skills" "$HOME/.codex/skills" "$HOME/.openclaw/skills" "$HOME/.agents/skills" "$HOME/.gemini/antigravity-cli/skills"; do
   mkdir -p "$t"
   for d in "$SRC"/skills/*/; do
     n="$(basename "$d")"; rm -rf "$t/$n"; cp -R "$d" "$t/$n" && installed=$((installed+1))

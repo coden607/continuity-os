@@ -44,5 +44,26 @@ That gives you: 7 skills in every detected CLI dir + the whole scaffold in `~/co
 - **Monthly:** models.yaml price review (cron `17 9 1 * *`)
 - **Always:** verify on disk, never trust completion events
 
+## Universal Fullstack App Engine & PWA
+Continuity OS includes a zero-dependency fullstack application template with a mobile-ready PWA shell, native Node 24 SQLite storage, REST endpoints, and automated tests.
+
+- **Frontend:** PWA Shell (`public/index.html`, `public/styles.css`, `public/app.js`, `public/sw.js`)
+- **Backend:** Node.js 24 + native `node:sqlite` + TypeScript (`server/server.ts`, `server/db.ts`)
+- **Orchestration Bridge:** `POST /api/dispatch` connected to `orchestration/dispatch.py`
+- **CLI & Ops:** `python3 manage.py` (status, db-stats, add-record, dispatch, serve, test)
+- **Adaptation Guide:** Read [APP_GUIDE.md](file:///root/Projects/continuity-os/APP_GUIDE.md) to convert this into a CRM, AI voice system, SaaS app, or autonomous agent runner.
+
+```bash
+# Run tests & typecheck
+npm test && npm run typecheck
+
+# Start local server
+npm start
+
+# Python management CLI
+python3 manage.py status
+python3 manage.py dispatch --duty "Your agent task"
+```
+
 ## Provenance
 Distilled from a 21-video Cole Medin sweep (2026-10-05), hardened on a live OpenClaw VPS. MIT. Carry it anywhere — continuity is the point.

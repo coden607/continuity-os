@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1f6feb">
+  <meta name="description" content="Continuity OS Universal Fullstack App Template with PWA, SQLite, and AI Orchestration.">
+  <title>Continuity OS · Universal App</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <a href="/" class="brand">
+        <div class="brand-icon">🧠</div>
+        <div>
+          <span class="brand-title">Continuity OS</span>
+          <span class="brand-badge">Universal App</span>
+        </div>
+      </a>
+      <div class="header-actions">
+        <a href="/busy-call.html" target="_blank" class="btn btn-secondary btn-sm" style="text-decoration:none; display: inline-flex; align-items: center; gap: 4px;">📞 Busy-Call Demo</a>
+        <div class="status-indicator">
+          <span class="status-dot" id="systemStatusDot"></span>
+          <span id="systemStatusText">Online</span>
+        </div>
+        <button id="themeToggle" class="btn-icon" title="Toggle Theme" aria-label="Toggle Theme">🌓</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="nav-tabs" role="tablist">
+    <button class="tab-btn active" data-tab="dashboard" role="tab">📊 Dashboard</button>
+    <button class="tab-btn" data-tab="records" role="tab">🗄️ Records</button>
+    <button class="tab-btn" data-tab="dispatch" role="tab">⚡ AI Dispatcher</button>
+    <button class="tab-btn" data-tab="api" role="tab">🔌 API Console</button>
+    <button class="tab-btn" data-tab="settings" role="tab">⚙️ Settings</button>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Tab 1: Dashboard -->
+    <section id="tab-dashboard" class="tab-panel active">
+      <div class="grid-cols-3">
+        <div class="card">
+          <div class="stat-value" id="statRecords">0</div>
+          <div class="stat-label">Active Records</div>
+        </div>
+        <div class="card">
+          <div class="stat-value" id="statEvents">0</div>
+          <div class="stat-label">Logged Audit Events</div>
+        </div>
+        <div class="card">
+          <div class="stat-value" id="statUptime">0s</div>
+          <div class="stat-label">Server Uptime</div>
+        </div>
+      </div>
+
+      <div class="grid-cols-2">
+        <!-- Quick Action / Status -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">🚀 Fast Launch & Adapt</h2>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
+            This barebones fullstack application is pre-wired with <strong>Node 24</strong>, built-in <strong>SQLite</strong>, <strong>PWA caching</strong>, and <strong>Continuity OS AI routing</strong>. Adapt it for any product in minutes.
+          </p>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-primary" id="btnQuickRecord">+ Add Sample Record</button>
+            <a href="/busy-call.html" target="_blank" class="btn btn-secondary" style="text-decoration:none;">📞 Missed-Call Simulator</a>
+            <button class="btn btn-secondary" id="btnRefreshStats">🔄 Refresh Stats</button>
+          </div>
+        </div>
+
+        <!-- System Information -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">🖥️ Stack Specifications</h2>
+          </div>
+          <table style="font-size: 0.85rem;">
+            <tbody>
+              <tr><td style="color: var(--text-muted);">Runtime</td><td id="infoNodeVersion">Node 24</td></tr>
+              <tr><td style="color: var(--text-muted);">Database</td><td>Native node:sqlite (Zero-dep)</td></tr>
+              <tr><td style="color: var(--text-muted);">PWA Service Worker</td><td id="infoSwStatus">Active</td></tr>
+              <tr><td style="color: var(--text-muted);">AI Orchestrator</td><td>Continuity OS dispatch.py</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Activity Timeline -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📝 Real-Time Activity Log</h2>
+          <span class="badge badge-primary" id="eventBadge">0 events</span>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Event Type</th>
+                <th>Timestamp</th>
+                <th>Payload</th>
+              </tr>
+            </thead>
+            <tbody id="eventsTableBody">
+              <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Loading events...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 2: Records (Generic Entity Storage) -->
+    <section id="tab-records" class="tab-panel">
+      <div class="card" style="margin-bottom: 20px;">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">🗄️ Universal Entity Records</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">Manage generic records stored in local SQLite.</p>
+          </div>
+          <button class="btn btn-primary" id="btnOpenNewRecordModal">+ New Record</button>
+        </div>
+        <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+          <input type="text" id="recordFilterInput" class="form-control" placeholder="Search by ID or type...">
+          <button class="btn btn-secondary" id="btnFilterRecords">Filter</button>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Record ID</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Updated</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="recordsTableBody">
+              <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No records found.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: AI Task Dispatcher -->
+    <section id="tab-dispatch" class="tab-panel">
+      <div class="grid-cols-2">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">⚡ Route Agent Task</h2>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 14px;">
+            Test the Continuity OS router. Dispatches duty tasks to the cheapest capable model tier via <code>dispatch.py</code>.
+          </p>
+          <form id="dispatchForm">
+            <div class="form-group">
+              <label class="form-label" for="dutyInput">Task / Duty Prompt</label>
+              <textarea id="dutyInput" class="form-control" rows="4" placeholder="e.g., Refactor the authentication endpoint to support OAuth tokens and add unit tests..."></textarea>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button type="submit" class="btn btn-primary" id="btnRunDispatch">⚡ Classify &amp; Route</button>
+              <button type="button" class="btn btn-secondary" id="btnSampleDuty">Sample Task</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">📋 Routing Result</h2>
+          </div>
+          <div id="dispatchResult">
+            <p style="color: var(--text-muted); font-size: 0.85rem;">Submit a task to view the model tier, routing strategy, token estimation, and persona hint.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 4: API Console -->
+    <section id="tab-api" class="tab-panel">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">🔌 Live REST API Console</h2>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 16px;">
+          Test the built-in HTTP endpoints directly from your browser.
+        </p>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
+          <button class="btn btn-secondary" onclick="runApiCall('/api/health', 'GET')">GET /api/health</button>
+          <button class="btn btn-secondary" onclick="runApiCall('/api/stats', 'GET')">GET /api/stats</button>
+          <button class="btn btn-secondary" onclick="runApiCall('/api/records', 'GET')">GET /api/records</button>
+          <button class="btn btn-secondary" onclick="runApiCall('/api/events', 'GET')">GET /api/events</button>
+          <button class="btn btn-secondary" onclick="runApiCall('/api/settings', 'GET')">GET /api/settings</button>
+        </div>
+        <pre class="code-box" id="apiResponseBox">// Click an endpoint above to execute...</pre>
+      </div>
+    </section>
+
+    <!-- Tab 5: Settings -->
+    <section id="tab-settings" class="tab-panel">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">⚙️ Application Settings</h2>
+        </div>
+        <form id="settingsForm">
+          <div class="form-group">
+            <label class="form-label" for="settingAppName">Application Name</label>
+            <input type="text" id="settingAppName" class="form-control" value="Continuity OS Universal App">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="settingAppVersion">Version</label>
+            <input type="text" id="settingAppVersion" class="form-control" value="1.0.0">
+          </div>
+          <button type="submit" class="btn btn-primary">Save Settings</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal Dialog: New Record -->
+  <div id="newRecordModal" class="modal-backdrop" style="display: none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 style="font-size: 1.1rem; font-weight: 700;">New Universal Record</h3>
+        <button class="btn-icon" id="btnCloseRecordModal" style="border: none;">✕</button>
+      </div>
+      <form id="newRecordForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="recordTypeInput">Record Type</label>
+            <input type="text" id="recordTypeInput" class="form-control" required placeholder="e.g. user, task, order, contact, device">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="recordStatusInput">Status</label>
+            <select id="recordStatusInput" class="form-control">
+              <option value="active">Active</option>
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+              <option value="archived">Archived</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="recordJsonInput">Data Payload (JSON)</label>
+            <textarea id="recordJsonInput" class="form-control" rows="5" placeholder='{"name": "Item 1", "priority": "high"}'></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCancelRecordModal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
