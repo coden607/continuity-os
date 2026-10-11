@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Continuity OS pre-commit hook (enforce-with-hooks: regex rung)
+# Enforces: no secrets/credentials in staged diff additions
+
+diff_content=$(git diff --cached)
+if [ -z "$diff_content" ]; then
+    exit 0
+fi
+
+# Screen using guardrails patterns
+if echo "$diff_content" | grep -qE "(sk-[a-zA-Z0-9]{32,}|ghp_[a-zA-Z0-9]{36}|AKIA[0-9A-Z]{16}|-----BEGIN (RSA |EC )?PRIVATE KEY-----)"; then
+    echo "❌ [HOOK BLOCKED] Credential / Secret pattern detected in staged changes!"
+    echo "   Enforcing: hooks/event-map.json (pre-commit -> regex rung)"
+    exit 1
+fi
+
+exit 0

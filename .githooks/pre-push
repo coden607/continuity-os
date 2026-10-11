@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Continuity OS pre-push hook (enforce-with-hooks)
+# Enforces: all tests must pass before pushing to remote
+
+echo "🧪 Running pre-push verification tests..."
+if ! npm test > /dev/null 2>&1; then
+    echo "❌ [HOOK BLOCKED] npm test failed! Cannot push broken changes."
+    exit 1
+fi
+
+echo "✔ Pre-push verification passed."
+exit 0
