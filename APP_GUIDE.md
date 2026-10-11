@@ -35,32 +35,41 @@ continuity-os/
 
 ### Key Advantages:
 1. **Zero External Dependencies at Runtime**: Powered entirely by Node 24 native capabilities:
-   - `node:sqlite` (`DatabaseSync`) for ACID-compliant persistence without native builds or SQLite C-bindings.
+   - `node:sqlite` (`DatabaseSync`) with WAL mode for ACID-compliant relational & vector persistence.
    - `node --experimental-strip-types` for direct TypeScript execution without compilation steps.
-   - Native `node:http` and `node:test`.
-2. **PWA Ready**: Instantly installable on iOS, Android, macOS, Windows, and Linux. Offline fallback included.
-3. **Built-in AI Orchestration**: Direct bridge to Continuity OS model routing (`POST /api/dispatch`), automatically routing tasks to the cheapest capable model tier.
-4. **Universal Entity Storage**: The `records` table stores arbitrary JSON entities with indexing, status management, and audit event logs.
+   - Native `node:http`, `node:crypto` (scrypt password hashing & API keys), and `node:test`.
+2. **Realtime Broadcast (SSE)**: Built-in `GET /api/stream` Server-Sent Events push live database and agent events directly to browser clients.
+3. **Semantic Vector Store**: Zero-dependency cosine similarity search engine in SQLite (`POST /api/vectors/search`, `POST /api/vectors/upsert`).
+4. **Background Job Queue**: Multi-worker asynchronous task queue with retry logic (`POST /api/jobs`, `POST /api/jobs/process-next`).
+5. **Universal 1-Click Transformation**: Instantly transform the barebones app into any target archetype via CLI (`python3 manage.py scaffold <preset>`) or browser UI modal.
+6. **PRD Planning & Token Discipline**: Integrated PRD studio (`/api/prds`), Token Optimizer (`/api/tokens/analyze`), Jev Decision Gate (`/api/jev`), and all 51 canonical skills.
 
 ---
 
 ## 2. Quick Start
 
 ```bash
-# Run automated test suite
+# 1. Run automated test suite (19/19 passing)
 npm test
 
-# Typecheck TypeScript definitions
+# 2. Typecheck TypeScript definitions
 npm run typecheck
 
-# Start development / production server (default: http://localhost:3000)
+# 3. Transform app into your target archetype in 1 click:
+# Presets: crm, voice, agent, rag, chat, ecommerce, pwa
+python3 manage.py scaffold crm
+
+# 4. Start development / production server (default: http://localhost:3000)
 npm start
 
-# Inspect system status and database counts via CLI
+# 5. Inspect system status via CLI
 python3 manage.py status
 
-# Test AI model routing
-python3 manage.py dispatch --duty "Process incoming invoice and notify finance"
+# 6. Analyze prompt token spend & calculate 90%+ cost savings
+python3 manage.py tokens "Refactor database authentication function"
+
+# 7. Evaluate action through Jev system-one policy gate
+python3 manage.py jev --state "Perform database migration" --bank act-gate
 ```
 
 ---

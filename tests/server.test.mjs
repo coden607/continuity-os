@@ -264,4 +264,89 @@ describe('Continuity OS · Universal HTTP Server', () => {
     assert.ok(res.body.result.policy);
     assert.ok(res.body.result.answers);
   });
+
+  it('manages authentication and API keys', async () => {
+    const regRes = await request(testPort, '/api/auth/register', {
+      method: 'POST',
+      body: { email: 'operator@example.com', password: 'secret_password_123' },
+    });
+    assert.equal(regRes.status, 201);
+    assert.equal(regRes.body.user.email, 'operator@example.com');
+
+    const loginRes = await request(testPort, '/api/auth/login', {
+      method: 'POST',
+      body: { email: 'operator@example.com', password: 'secret_password_123' },
+    });
+    assert.equal(loginRes.status, 200);
+    assert.ok(loginRes.body.token);
+
+    const keyRes = await request(testPort, '/api/auth/keys', {
+      method: 'POST',
+      body: { name: 'Production Agent Key' },
+    });
+    assert.equal(keyRes.status, 201);
+    assert.ok(keyRes.body.key.startsWith('cty_'));
+  });
+
+  it('manages background job queue', async () => {
+    const enqRes = await request(testPort, '/api/jobs', {
+      method: 'POST',
+      body: { queue: 'email', payload: { to: 'client@example.com', template: 'welcome' } },
+    });
+    assert.equal(enqRes.status, 201);
+    assert.equal(enqRes.body.job.status, 'pending');
+
+    const listRes = await request(testPort, '/api/jobs');
+    assert.equal(listRes.status, 200);
+    assert.ok(listRes.body.jobs.length > 0);
+
+    const procRes = await request(testPort, '/api/jobs/process-next', { method: 'POST', body: { queue: 'email' } });
+    assert.equal(procRes.status, 200);
+    assert.equal(procRes.body.claimed, true);
+  });
+
+  it('upserts vectors and performs cosine similarity search', async () => {
+    const upRes = await request(testPort, '/api/vectors/upsert', {
+      method: 'POST',
+      body: {
+        id: 'doc_pizza',
+        collection: 'test_kb',
+        text: 'Brozzetti pizza takeout rush orders',
+        embedding: [0.1, 0.9, 0.0, 0.2],
+        metadata: { category: 'food' },
+      },
+    });
+    assert.equal(upRes.status, 201);
+
+    const searchRes = await request(testPort, '/api/vectors/search', {
+      method: 'POST',
+      body: {
+        embedding: [0.12, 0.88, 0.05, 0.18],
+        collection: 'test_kb',
+        topK: 3,
+      },
+    });
+    assert.equal(searchRes.status, 200);
+    assert.ok(searchRes.body.matches.length > 0);
+    assert.equal(searchRes.body.matches[0].id, 'doc_pizza');
+    assert.ok(searchRes.body.matches[0].score > 0.95);
+  });
+
+  it('receives webhooks and transforms app archetype', async () => {
+    const hookRes = await request(testPort, '/api/webhooks/twilio', {
+      method: 'POST',
+      body: { CallSid: 'CA123456', From: '+16075550199', CallStatus: 'busy' },
+    });
+    assert.equal(hookRes.status, 200);
+    assert.equal(hookRes.body.received, true);
+    assert.equal(hookRes.body.provider, 'twilio');
+
+    const transRes = await request(testPort, '/api/app/transform', {
+      method: 'POST',
+      body: { preset: 'crm', appName: 'My Custom CRM' },
+    });
+    assert.equal(transRes.status, 200);
+    assert.equal(transRes.body.preset, 'crm');
+    assert.ok(transRes.body.createdCount > 0);
+  });
 });

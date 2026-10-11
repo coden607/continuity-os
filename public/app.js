@@ -858,11 +858,92 @@
     });
   }
 
+  // --- Realtime SSE Stream ---
+  let eventSource = null;
+  function initEventStream() {
+    if (!window.EventSource) return;
+    try {
+      eventSource = new EventSource('/api/stream');
+      eventSource.onopen = () => {
+        if (systemStatusDot) systemStatusDot.style.backgroundColor = 'var(--accent-green)';
+        if (systemStatusText) systemStatusText.textContent = 'Live SSE';
+      };
+      eventSource.onmessage = (e) => {
+        if (!e.data || e.data.startsWith(':')) return;
+        try {
+          const ev = JSON.parse(e.data);
+          prependLiveEvent(ev);
+        } catch {}
+      };
+      eventSource.onerror = () => {
+        if (systemStatusDot) systemStatusDot.style.backgroundColor = 'var(--accent-orange)';
+        if (systemStatusText) systemStatusText.textContent = 'Reconnecting';
+      };
+    } catch {}
+  }
+
+  function prependLiveEvent(ev) {
+    if (!eventsTableBody) return;
+    const row = document.createElement('tr');
+    const payloadStr = JSON.stringify(ev.payload || {});
+    const preview = payloadStr.length > 55 ? payloadStr.slice(0, 52) + '...' : payloadStr;
+    row.innerHTML = `
+      <td><code>${ev.id}</code></td>
+      <td><span class="badge badge-success">${escapeHtml(ev.type)}</span></td>
+      <td><small>${formatDate(ev.createdAt || new Date().toISOString())}</small></td>
+      <td><code title="${escapeHtml(payloadStr)}">${escapeHtml(preview)}</code></td>
+    `;
+    eventsTableBody.insertBefore(row, eventsTableBody.firstChild);
+
+    if (statEvents) {
+      const current = parseInt(statEvents.textContent || '0', 10);
+      statEvents.textContent = current + 1;
+    }
+  }
+
+  // --- App Transformer Modal ---
+  const transformModal = document.getElementById('transformModal');
+  const btnOpenTransformModal = document.getElementById('btnOpenTransformModal');
+  const btnCloseTransformModal = document.getElementById('btnCloseTransformModal');
+  const btnCancelTransformModal = document.getElementById('btnCancelTransformModal');
+  const btnExecuteTransform = document.getElementById('btnExecuteTransform');
+  const transformAppNameInput = document.getElementById('transformAppNameInput');
+
+  function openTransformModal() { if (transformModal) transformModal.style.display = 'flex'; }
+  function closeTransformModal() { if (transformModal) transformModal.style.display = 'none'; }
+
+  if (btnOpenTransformModal) btnOpenTransformModal.addEventListener('click', openTransformModal);
+  if (btnCloseTransformModal) btnCloseTransformModal.addEventListener('click', closeTransformModal);
+  if (btnCancelTransformModal) btnCancelTransformModal.addEventListener('click', closeTransformModal);
+
+  if (btnExecuteTransform) {
+    btnExecuteTransform.addEventListener('click', async () => {
+      const selected = document.querySelector('input[name="transformPreset"]:checked');
+      const preset = selected ? selected.value : 'crm';
+      const appName = transformAppNameInput?.value.trim() || undefined;
+
+      try {
+        const res = await fetchJson('/api/app/transform', {
+          method: 'POST',
+          body: JSON.stringify({ preset, appName }),
+        });
+        showToast(`Transformed to [${preset.toUpperCase()}]: ${res.appName}`, 'success');
+        closeTransformModal();
+        loadDashboard();
+        loadRecords();
+        loadSettings();
+      } catch (err) {
+        showToast(`Transform failed: ${err.message}`, 'error');
+      }
+    });
+  }
+
   // --- Init ---
   initTheme();
   initTabs();
   registerServiceWorker();
   loadDashboard();
+  initEventStream();
 
   uptimeInterval = setInterval(() => {
     uptimeSeconds++;

@@ -245,6 +245,12 @@ def main():
     p_prds = subparsers.add_parser("prds", help="List PRD documents")
     p_prds.set_defaults(func=cmd_prds)
 
+    # scaffold
+    p_scaf = subparsers.add_parser("scaffold", help="Transform app into an archetype (crm, voice, agent, rag, chat, ecommerce, pwa)")
+    p_scaf.add_argument("preset", choices=["crm", "voice", "agent", "rag", "chat", "ecommerce", "pwa"], help="Target archetype preset")
+    p_scaf.add_argument("--name", help="Custom application title")
+    p_scaf.set_defaults(func=lambda args: __import__("orchestration.scaffold", fromlist=["transform_app"]).transform_app(args.preset, args.name))
+
     # serve
     p_serve = subparsers.add_parser("serve", help="Start the Node.js server")
     p_serve.add_argument("--port", type=int, default=3000, help="Port to listen on")

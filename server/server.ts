@@ -203,7 +203,7 @@ export function createAppServer(database?: AppDatabase): { server: Server; db: A
         if (pathname === '/api/settings' && method === 'POST') {
           const body = await parseBody(req);
           for (const [k, v] of Object.entries(body)) {
-            db.setSetting(k, v);
+            db.setSetting(k, String(v));
           }
           return sendJson(res, 200, { settings: db.listSettings() });
         }
@@ -451,6 +451,170 @@ ${nonGoals || '- Complex third-party integrations\n- Multi-region compliance cer
             });
           }
           return sendJson(res, 404, { error: 'Skill not found' });
+        }
+
+        // --- Realtime SSE Stream ---
+        if (pathname === '/api/stream' && method === 'GET') {
+          res.writeHead(200, {
+            'Content-Type': 'text/event-stream; charset=utf-8',
+            'Cache-Control': 'no-cache, no-transform',
+            'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no',
+            'Access-Control-Allow-Origin': '*',
+          });
+          res.write(': stream connected\n\n');
+
+          const unsubscribe = db.onEvent((ev) => {
+            res.write(`data: ${JSON.stringify(ev)}\n\n`);
+          });
+
+          const heartbeat = setInterval(() => {
+            res.write(': heartbeat\n\n');
+          }, 15000);
+
+          req.on('close', () => {
+            clearInterval(heartbeat);
+            unsubscribe();
+          });
+          return;
+        }
+
+        // --- Authentication & API Keys ---
+        if (pathname === '/api/auth/register' && method === 'POST') {
+          const body = await parseBody(req);
+          const { email, password, role } = body;
+          if (!email || !password) return sendJson(res, 400, { error: 'Email and password required' });
+          try {
+            const user = db.createUser(email, password, role || 'user');
+            return sendJson(res, 201, { user });
+          } catch (err: any) {
+            return sendJson(res, 400, { error: err.message });
+          }
+        }
+
+        if (pathname === '/api/auth/login' && method === 'POST') {
+          const body = await parseBody(req);
+          const { email, password } = body;
+          if (!email || !password) return sendJson(res, 400, { error: 'Email and password required' });
+          const user = db.verifyUser(email, password);
+          if (!user) return sendJson(res, 401, { error: 'Invalid credentials' });
+          return sendJson(res, 200, { user, token: 'usr_' + Date.now().toString(36) });
+        }
+
+        if (pathname === '/api/auth/keys' && method === 'GET') {
+          return sendJson(res, 200, { keys: db.listApiKeys() });
+        }
+
+        if (pathname === '/api/auth/keys' && method === 'POST') {
+          const body = await parseBody(req);
+          const name = body.name || 'Default Key';
+          const perms = body.permissions || 'read,write';
+          const key = db.createApiKey(name, body.userId, perms);
+          return sendJson(res, 201, { key, name, permissions: perms });
+        }
+
+        // --- Background Job Queue ---
+        if (pathname === '/api/jobs' && method === 'GET') {
+          const status = url.searchParams.get('status') || undefined;
+          const limit = parseInt(url.searchParams.get('limit') || '50', 10);
+          return sendJson(res, 200, { jobs: db.listJobs(status, limit) });
+        }
+
+        if (pathname === '/api/jobs' && method === 'POST') {
+          const body = await parseBody(req);
+          const queue = body.queue || 'default';
+          const payload = body.payload || body;
+          const delayMs = parseInt(body.delayMs || '0', 10);
+          const maxAttempts = parseInt(body.maxAttempts || '3', 10);
+          const job = db.enqueueJob(queue, payload, delayMs, maxAttempts);
+          return sendJson(res, 201, { job });
+        }
+
+        if (pathname === '/api/jobs/process-next' && method === 'POST') {
+          const body = await parseBody(req);
+          const queue = body.queue || undefined;
+          const job = db.claimNextJob(queue);
+          if (!job) return sendJson(res, 200, { claimed: false, message: 'No pending jobs in queue' });
+
+          db.completeJob(job.id, { processedAt: new Date().toISOString() });
+          return sendJson(res, 200, { claimed: true, job });
+        }
+
+        // --- Vector Store & Cosine Similarity ---
+        if (pathname === '/api/vectors/upsert' && method === 'POST') {
+          const body = await parseBody(req);
+          const id = body.id || 'vec_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+          const collection = body.collection || 'default';
+          const text = body.text || '';
+          const embedding = body.embedding || [];
+          const metadata = body.metadata || {};
+
+          if (!Array.isArray(embedding) || embedding.length === 0) {
+            return sendJson(res, 400, { error: 'Embedding must be non-empty array of numbers' });
+          }
+
+          db.upsertVector(id, collection, text, embedding, metadata);
+          return sendJson(res, 201, { success: true, id, collection });
+        }
+
+        if (pathname === '/api/vectors/search' && method === 'POST') {
+          const body = await parseBody(req);
+          const embedding = body.embedding || [];
+          const collection = body.collection || 'default';
+          const topK = parseInt(body.topK || '5', 10);
+
+          if (!Array.isArray(embedding) || embedding.length === 0) {
+            return sendJson(res, 400, { error: 'Query embedding must be non-empty array of numbers' });
+          }
+
+          const matches = db.searchVectors(embedding, collection, topK);
+          return sendJson(res, 200, { matches });
+        }
+
+        // --- Webhooks Ingestion ---
+        const webhookMatch = pathname.match(/^\/api\/webhooks\/([a-zA-Z0-9_\-]+)$/);
+        if (webhookMatch && method === 'POST') {
+          const provider = webhookMatch[1];
+          const body = await parseBody(req);
+          const eventId = db.logEvent(`webhook.${provider}`, body);
+          const job = db.enqueueJob('webhooks', { provider, body, eventId });
+          return sendJson(res, 200, { received: true, provider, eventId, jobId: job.id });
+        }
+
+        // --- Universal App Scaffolder / Transformer ---
+        if (pathname === '/api/app/transform' && method === 'POST') {
+          const body = await parseBody(req);
+          const preset = (body.preset || 'crm').toLowerCase();
+          const appName = body.appName || `Continuity OS · ${preset.toUpperCase()} Engine`;
+
+          db.setSetting('app.name', appName);
+          db.setSetting('app.preset', preset);
+
+          let createdCount = 0;
+          if (preset === 'crm') {
+            db.saveRecord('deal_001', 'deal', { name: 'Acme Enterprise Contract', value: 25000, stage: 'proposal' });
+            db.saveRecord('contact_001', 'contact', { name: 'Alice Smith', email: 'alice@acme.com', company: 'Acme Corp' });
+            createdCount = 2;
+          } else if (preset === 'voice') {
+            db.setSetting('outreach.campaign', 'voice-telephony');
+            db.saveRecord('call_001', 'call_log', { caller: '+16075550199', status: 'busy_recovered', durationSec: 42 });
+            createdCount = 1;
+          } else if (preset === 'agent') {
+            db.saveRecord('agent_task_001', 'task', { title: 'Autonomous repo security sweep', tier: 'code', status: 'queued' });
+            createdCount = 1;
+          } else if (preset === 'rag') {
+            db.upsertVector('doc_1', 'kb', 'Continuous software factory guidance layer', [0.1, 0.4, 0.8, -0.2], { topic: 'software-factory' });
+            createdCount = 1;
+          } else if (preset === 'chat') {
+            db.saveRecord('msg_001', 'message', { user: 'operator', channel: 'general', text: 'Welcome to the realtime chat room!' });
+            createdCount = 1;
+          } else if (preset === 'ecommerce') {
+            db.saveRecord('prod_001', 'product', { title: 'Enterprise Agent License', price: 99, inventory: 500 });
+            createdCount = 1;
+          }
+
+          db.logEvent('app.transformed', { preset, appName, createdCount });
+          return sendJson(res, 200, { success: true, preset, appName, createdCount });
         }
 
         return sendJson(res, 404, { error: 'Endpoint not found', path: pathname });

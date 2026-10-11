@@ -22,6 +22,7 @@
         </div>
       </a>
       <div class="header-actions">
+        <button id="btnOpenTransformModal" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 4px;">🔄 Transform App</button>
         <a href="/busy-call.html" target="_blank" class="btn btn-secondary btn-sm" style="text-decoration:none; display: inline-flex; align-items: center; gap: 4px;">📞 Busy-Call Demo</a>
         <div class="status-indicator">
           <span class="status-dot" id="systemStatusDot"></span>
@@ -446,6 +447,80 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" id="btnCopySkillContent">📋 Copy Prompt</button>
         <button type="button" class="btn btn-primary" id="btnDismissSkillModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Dialog: Transform App Archetype -->
+  <div id="transformModal" class="modal-backdrop" style="display: none;">
+    <div class="modal" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3 style="font-size: 1.15rem; font-weight: 700;">🔄 Transform Universal App</h3>
+        <button class="btn-icon" id="btnCloseTransformModal" style="border: none;">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 16px;">
+          Choose an archetype below to instantly reconfigure the database schema, seed domain records, customize titles, and turn this into your target application.
+        </p>
+        <div style="display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 16px;">
+          <label style="display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; background: var(--bg-card);">
+            <input type="radio" name="transformPreset" value="crm" checked style="margin-top: 4px;">
+            <div>
+              <strong>💼 B2B SaaS CRM &amp; Pipeline</strong>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Deal stages, qualified pipeline, contacts, and activity tracker.</div>
+            </div>
+          </label>
+          <label style="display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; background: var(--bg-card);">
+            <input type="radio" name="transformPreset" value="voice" style="margin-top: 4px;">
+            <div>
+              <strong>📞 Voice &amp; Missed-Call Recovery Hub</strong>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Carrier-level busy forward, Twilio REST webhook, SMS recovery link, and DNC safety.</div>
+            </div>
+          </label>
+          <label style="display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; background: var(--bg-card);">
+            <input type="radio" name="transformPreset" value="agent" style="margin-top: 4px;">
+            <div>
+              <strong>🤖 Autonomous AI Agent Runner</strong>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Background job queue, 8-tier routing, Jev decision gate, and 10% judge eval loop.</div>
+            </div>
+          </label>
+          <label style="display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; background: var(--bg-card);">
+            <input type="radio" name="transformPreset" value="rag" style="margin-top: 4px;">
+            <div>
+              <strong>🔍 Semantic Knowledge Base &amp; RAG</strong>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Vector embeddings store with zero-dependency cosine similarity search.</div>
+            </div>
+          </label>
+          <label style="display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; background: var(--bg-card);">
+            <input type="radio" name="transformPreset" value="chat" style="margin-top: 4px;">
+            <div>
+              <strong>💬 Realtime Team &amp; Agent Chat</strong>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Live Server-Sent Events (SSE) stream, multi-channel rooms, and bot responder.</div>
+            </div>
+          </label>
+          <label style="display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; background: var(--bg-card);">
+            <input type="radio" name="transformPreset" value="ecommerce" style="margin-top: 4px;">
+            <div>
+              <strong>🛍️ Digital Storefront &amp; Payments</strong>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Product catalog, inventory orders, and Stripe webhook payment seam.</div>
+            </div>
+          </label>
+          <label style="display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; background: var(--bg-card);">
+            <input type="radio" name="transformPreset" value="pwa" style="margin-top: 4px;">
+            <div>
+              <strong>📱 Local-First Offline Field PWA</strong>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Offline service worker caching, background sync queue, and mobile dashboard.</div>
+            </div>
+          </label>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="transformAppNameInput">Custom Application Name (Optional)</label>
+          <input type="text" id="transformAppNameInput" class="form-control" placeholder="Leave blank to use default archetype name">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btnCancelTransformModal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="btnExecuteTransform">✨ Transform App Now</button>
       </div>
     </div>
   </div>
