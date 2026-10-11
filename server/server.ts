@@ -1,5 +1,5 @@
 import { createServer, IncomingMessage, ServerResponse, Server } from 'node:http';
-import { readFileSync, existsSync, statSync } from 'node:fs';
+import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync, statSync } from 'node:fs';
 import { join, extname, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFile } from 'node:child_process';
@@ -212,6 +212,7 @@ export function createAppServer(database?: AppDatabase): { server: Server; db: A
         if (pathname === '/api/dispatch' && method === 'POST') {
           const body = await parseBody(req);
           const duty = (body.duty || body.task || '').trim();
+          const withJev = !!body.with_jev;
           if (!duty) {
             return sendJson(res, 400, { error: 'Missing duty parameter' });
           }
@@ -219,9 +220,11 @@ export function createAppServer(database?: AppDatabase): { server: Server; db: A
           const dispatchScript = join(ROOT_DIR, 'orchestration', 'dispatch.py');
           if (existsSync(dispatchScript)) {
             try {
-              const { stdout } = await execFileAsync('python3', [dispatchScript, '--duty', duty]);
+              const args = [dispatchScript, '--duty', duty];
+              if (withJev) args.push('--with-jev');
+              const { stdout } = await execFileAsync('python3', args);
               const plan = JSON.parse(stdout.trim());
-              db.logEvent('ai.dispatch', { duty, tier: plan.tier, route: plan.route });
+              db.logEvent('ai.dispatch', { duty, tier: plan.tier, route: plan.route, withJev });
               return sendJson(res, 200, { plan });
             } catch (err: any) {
               return sendJson(res, 500, { error: 'Dispatch script execution failed', details: err.message });
@@ -229,6 +232,225 @@ export function createAppServer(database?: AppDatabase): { server: Server; db: A
           } else {
             return sendJson(res, 501, { error: 'orchestration/dispatch.py not found on host' });
           }
+        }
+
+        // --- PRDs & Planning Engine ---
+        if (pathname === '/api/prds' && method === 'GET') {
+          const prdDir = join(ROOT_DIR, 'factory', 'prd');
+          const prds: any[] = [];
+          if (existsSync(prdDir)) {
+            const files = readdirSync(prdDir).filter(f => f.endsWith('.md'));
+            for (const file of files) {
+              const fullPath = join(prdDir, file);
+              const content = readFileSync(fullPath, 'utf-8');
+              const titleM = content.match(/^#\s+(.+)$/m);
+              const title = titleM ? titleM[1].trim() : file;
+              prds.push({
+                id: file,
+                title,
+                filename: file,
+                size: content.length,
+                updatedAt: statSync(fullPath).mtime.toISOString(),
+              });
+            }
+          }
+          return sendJson(res, 200, { prds });
+        }
+
+        const prdMatch = pathname.match(/^\/api\/prds\/([a-zA-Z0-9_\-\.]+)$/);
+        if (prdMatch && method === 'GET') {
+          const prdFile = prdMatch[1];
+          const fullPath = join(ROOT_DIR, 'factory', 'prd', prdFile);
+          if (existsSync(fullPath)) {
+            return sendJson(res, 200, {
+              id: prdFile,
+              content: readFileSync(fullPath, 'utf-8')
+            });
+          }
+          return sendJson(res, 404, { error: 'PRD not found' });
+        }
+
+        if (pathname === '/api/prds' && method === 'POST') {
+          const body = await parseBody(req);
+          const title = (body.title || 'Untitled PRD').trim();
+          const filename = (body.filename || `PRD-${Date.now().toString(36).toUpperCase()}.md`).replace(/[^a-zA-Z0-9_\-\.]/g, '_');
+          const content = body.content || `# ${title}\n\n`;
+          const prdDir = join(ROOT_DIR, 'factory', 'prd');
+          mkdirSync(prdDir, { recursive: true });
+          const fullPath = join(prdDir, filename);
+          writeFileSync(fullPath, content, 'utf-8');
+          db.saveRecord('prd_' + filename.replace(/\.md$/, ''), 'prd', { title, filename }, 'active');
+          db.logEvent('prd.created', { filename, title });
+          return sendJson(res, 201, { success: true, filename, title });
+        }
+
+        if (pathname === '/api/prds/generate' && method === 'POST') {
+          const body = await parseBody(req);
+          const problem = (body.problem || '').trim();
+          const product = (body.product || 'New Universal Application').trim();
+          const hypothesis = (body.hypothesis || '').trim();
+          const audience = (body.audience || 'Target Users').trim();
+          const mvp = (body.mvp || '').trim();
+          const nonGoals = (body.nonGoals || '').trim();
+
+          const generatedMd = `# PRD: ${product}
+
+**Status:** Draft / Ready for Architecture Spec  
+**Author:** Continuity OS Planning Studio  
+**Target Audience:** ${audience}  
+
+---
+
+## 1. Problem Statement
+${problem || 'State the core problem and why status quo solutions fail.'}
+
+---
+
+## 2. Evidence & Grounding
+- Grounded in operational user friction and workflow observations.
+- Conservative quantified impact.
+
+---
+
+## 3. Falsifiable Hypothesis
+> **If** ${hypothesis || 'we deliver the automated core...'},  
+> **Then** target users achieve measurable operational lift,  
+> **Because** friction in the current manual workflow is removed.
+
+---
+
+## 4. User Personas
+- **Primary Persona:** ${audience}
+- **Secondary Persona:** System Operator / Administrator
+
+---
+
+## 5. MVP Scope & Boundaries
+### In Scope:
+${mvp || '- Core minimal viable functionality'}
+
+### Non-Goals (Explicitly Out of Scope for MVP):
+${nonGoals || '- Complex third-party integrations\n- Multi-region compliance certification'}
+
+---
+
+## 6. Success Metrics
+- Specific, measurable adoption and reliability targets.
+- Zero regression in core performance.
+`;
+          return sendJson(res, 200, { markdown: generatedMd, product });
+        }
+
+        // --- Token Spend Optimizer ---
+        if (pathname === '/api/tokens/analyze' && method === 'POST') {
+          const body = await parseBody(req);
+          const promptText = (body.text || body.prompt || '').trim();
+          const expectedOutput = parseInt(body.outputTokens || '500', 10);
+          if (!promptText) {
+            return sendJson(res, 400, { error: 'Missing text or prompt' });
+          }
+
+          const optScript = join(ROOT_DIR, 'orchestration', 'optimizer.py');
+          if (existsSync(optScript)) {
+            try {
+              const { stdout } = await execFileAsync('python3', [optScript, promptText, '--output-tokens', String(expectedOutput)]);
+              const analysis = JSON.parse(stdout.trim());
+              return sendJson(res, 200, { analysis });
+            } catch (err: any) {
+              return sendJson(res, 500, { error: 'Token optimization analysis failed', details: err.message });
+            }
+          } else {
+            return sendJson(res, 501, { error: 'orchestration/optimizer.py not found on host' });
+          }
+        }
+
+        // --- Jev Decision Gateway ---
+        if (pathname === '/api/jev' && method === 'POST') {
+          const body = await parseBody(req);
+          const state = (body.state || body.task || '').trim();
+          const bank = (body.bank || 'mode-router').trim();
+          const floor = body.floor ? String(body.floor) : '0.72';
+          if (!state) {
+            return sendJson(res, 400, { error: 'Missing state or task to evaluate' });
+          }
+
+          const jevScript = join(ROOT_DIR, 'skills', 'jev-gate', 'scripts', 'decide.py');
+          if (existsSync(jevScript)) {
+            try {
+              const args = [jevScript, '--state', state, '--bank', bank, '--floor', floor];
+              const { stdout } = await execFileAsync('python3', args);
+              const result = JSON.parse(stdout.trim());
+              db.logEvent('jev.decision', { state, bank, policy: result.policy });
+              return sendJson(res, 200, { result });
+            } catch (err: any) {
+              return sendJson(res, 500, { error: 'Jev decision evaluation failed', details: err.message });
+            }
+          } else {
+            return sendJson(res, 501, { error: 'skills/jev-gate/scripts/decide.py not found' });
+          }
+        }
+
+        // --- Skills Catalog & Runner ---
+        if (pathname === '/api/skills' && method === 'GET') {
+          const skillsDir = join(ROOT_DIR, 'skills');
+          const skills: any[] = [];
+          if (existsSync(skillsDir)) {
+            const entries = readdirSync(skillsDir, { withFileTypes: true });
+            for (const ent of entries) {
+              if (ent.isDirectory()) {
+                const skillMd = join(skillsDir, ent.name, 'SKILL.md');
+                if (existsSync(skillMd)) {
+                  const content = readFileSync(skillMd, 'utf-8');
+                  const match = content.match(/^---\s*([\s\S]*?)\s*---/);
+                  let name = ent.name;
+                  let description = '';
+                  let argumentHint = '';
+                  if (match) {
+                    const front = match[1];
+                    const nameM = front.match(/name:\s*(.+)/);
+                    const descM = front.match(/description:\s*(?:["']?)(.+?)(?:["']?)$/m);
+                    const argM = front.match(/argument-hint:\s*(?:["']?)(.+?)(?:["']?)$/m);
+                    if (nameM) name = nameM[1].trim();
+                    if (descM) description = descM[1].trim();
+                    if (argM) argumentHint = argM[1].trim();
+                  }
+
+                  let category = 'general';
+                  if (ent.name.startsWith('plan-') || ent.name.includes('prd') || ent.name.includes('stories')) category = 'planning';
+                  else if (ent.name.startsWith('piv-')) category = 'pivotal-loop';
+                  else if (ent.name.startsWith('route-') || ent.name.includes('jev')) category = 'routing';
+                  else if (ent.name.startsWith('prime-')) category = 'priming';
+                  else if (ent.name.startsWith('legal-') || ent.name.startsWith('ny-')) category = 'legal-audit';
+                  else if (ent.name.includes('factory')) category = 'factory';
+                  else if (ent.name.includes('hook')) category = 'enforcement';
+                  else if (ent.name.includes('brain') || ent.name.includes('memory')) category = 'memory';
+                  else if (ent.name.includes('token')) category = 'spend-discipline';
+
+                  skills.push({
+                    name,
+                    folder: ent.name,
+                    description,
+                    argumentHint,
+                    category,
+                  });
+                }
+              }
+            }
+          }
+          return sendJson(res, 200, { total: skills.length, skills });
+        }
+
+        const skillMatch = pathname.match(/^\/api\/skills\/([a-zA-Z0-9_\-]+)$/);
+        if (skillMatch && method === 'GET') {
+          const skillName = skillMatch[1];
+          const skillMd = join(ROOT_DIR, 'skills', skillName, 'SKILL.md');
+          if (existsSync(skillMd)) {
+            return sendJson(res, 200, {
+              name: skillName,
+              content: readFileSync(skillMd, 'utf-8')
+            });
+          }
+          return sendJson(res, 404, { error: 'Skill not found' });
         }
 
         return sendJson(res, 404, { error: 'Endpoint not found', path: pathname });

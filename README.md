@@ -45,23 +45,28 @@ That gives you: 7 skills in every detected CLI dir + the whole scaffold in `~/co
 - **Always:** verify on disk, never trust completion events
 
 ## Universal Fullstack App Engine & PWA
-Continuity OS includes a zero-dependency fullstack application template with a mobile-ready PWA shell, native Node 24 SQLite storage, REST endpoints, and automated tests.
+Continuity OS includes a zero-dependency fullstack application template with a mobile-ready PWA shell, native Node 24 SQLite storage, REST endpoints, automated tests, and all 51 canonical skills permanently integrated.
 
-- **Frontend:** PWA Shell (`public/index.html`, `public/styles.css`, `public/app.js`, `public/sw.js`)
-- **Backend:** Node.js 24 + native `node:sqlite` + TypeScript (`server/server.ts`, `server/db.ts`)
-- **Orchestration Bridge:** `POST /api/dispatch` connected to `orchestration/dispatch.py`
-- **CLI & Ops:** `python3 manage.py` (status, db-stats, add-record, dispatch, serve, test)
+- **Frontend PWA:** Responsive dashboard with 8 functional modules: Dashboard, PRD Planning Studio, Token Optimizer, AI Router & Jev Gate, Skills Catalog, Records CRM, API Console, and Settings (`public/index.html`, `public/app.js`, `public/sw.js`).
+- **PRD Planning Studio:** Problem-first, evidence-grounded PRD generation (`/api/prds`, `/api/prds/generate`, `factory/prd/`).
+- **Token Spend Optimizer:** Analyzes prompt tokens, pricing across tiers (Frontier vs Standard vs Fast vs Jev), prompt-caching hit structures, and savings percentages (`/api/tokens/analyze`, `orchestration/optimizer.py`).
+- **Jev System-One Gate:** Offline rubric + online OpenRouter decision gate for `act-gate`, `mode-router`, `retry-stop`, and `legal-risk` (`/api/jev`, `skills/jev-gate/scripts/decide.py`).
+- **Canonical Skills (51):** All 51 skills permanently committed in `skills/` and synced to `~/.claude/skills`, `~/.codex/skills`, `~/.openclaw/skills`, `~/.agents/skills`, and `~/.gemini/antigravity-cli/skills`.
+- **Backend Runtime:** Node.js 24 + native `node:sqlite` + native TypeScript execution (`server/server.ts`, `server/db.ts`).
+- **Unified Python CLI:** `python3 manage.py` (`status`, `db-stats`, `tokens`, `jev`, `prds`, `add-record`, `dispatch`, `serve`, `test`).
 - **Adaptation Guide:** Read [APP_GUIDE.md](file:///root/Projects/continuity-os/APP_GUIDE.md) to convert this into a CRM, AI voice system, SaaS app, or autonomous agent runner.
 
 ```bash
-# Run tests & typecheck
+# Run tests (15/15 passing) & typecheck
 npm test && npm run typecheck
 
-# Start local server
+# Start local server (http://localhost:3000)
 npm start
 
 # Python management CLI
 python3 manage.py status
+python3 manage.py tokens "Analyze this prompt"
+python3 manage.py jev --state "Perform database migration" --bank act-gate
 python3 manage.py dispatch --duty "Your agent task"
 ```
 

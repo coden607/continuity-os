@@ -205,4 +205,63 @@ describe('Continuity OS · Universal HTTP Server', () => {
     assert.equal(cssRes.status, 200);
     assert.ok(cssRes.headers['content-type'].includes('text/css'));
   });
+
+  it('GET /api/skills lists all installed canonical skills', async () => {
+    const res = await request(testPort, '/api/skills');
+    assert.equal(res.status, 200);
+    assert.ok(res.body.total >= 50);
+    assert.ok(res.body.skills.some((s) => s.name === 'plan-create-prd'));
+    assert.ok(res.body.skills.some((s) => s.name === 'compress-token-spend'));
+    assert.ok(res.body.skills.some((s) => s.name === 'opportunity-scan'));
+
+    const singleRes = await request(testPort, '/api/skills/plan-create-prd');
+    assert.equal(singleRes.status, 200);
+    assert.ok(singleRes.body.content.includes('plan-create-prd'));
+  });
+
+  it('GET /api/prds and POST /api/prds/generate manages PRD planning documents', async () => {
+    const listRes = await request(testPort, '/api/prds');
+    assert.equal(listRes.status, 200);
+    assert.ok(Array.isArray(listRes.body.prds));
+    assert.ok(listRes.body.prds.some((p) => p.filename.includes('BUSY-PHONE')));
+
+    const genRes = await request(testPort, '/api/prds/generate', {
+      method: 'POST',
+      body: {
+        product: 'AI Tutor App',
+        problem: 'Students lack personalized instant feedback on homework',
+        hypothesis: 'Instant interactive hints improve test scores by 20%',
+        audience: 'High school students',
+      },
+    });
+    assert.equal(genRes.status, 200);
+    assert.ok(genRes.body.markdown.includes('AI Tutor App'));
+    assert.ok(genRes.body.markdown.includes('Problem Statement'));
+  });
+
+  it('POST /api/tokens/analyze analyzes prompt tokens and calculates spend discipline', async () => {
+    const res = await request(testPort, '/api/tokens/analyze', {
+      method: 'POST',
+      body: { prompt: 'You are an engineer. Write a function to calculate Fibonacci sequence.' },
+    });
+    assert.equal(res.status, 200);
+    assert.ok(res.body.analysis);
+    assert.ok(typeof res.body.analysis.input_tokens === 'number');
+    assert.ok(res.body.analysis.savings_percentage.fast_vs_frontier > 90);
+    assert.ok(Array.isArray(res.body.analysis.recommendations));
+  });
+
+  it('POST /api/jev evaluates state using Jev decision gate', async () => {
+    const res = await request(testPort, '/api/jev', {
+      method: 'POST',
+      body: {
+        task: 'Delete production database tables and flush redis cache',
+        bank: 'act-gate',
+      },
+    });
+    assert.equal(res.status, 200);
+    assert.ok(res.body.result);
+    assert.ok(res.body.result.policy);
+    assert.ok(res.body.result.answers);
+  });
 });

@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#1f6feb">
-  <meta name="description" content="Continuity OS Universal Fullstack App Template with PWA, SQLite, and AI Orchestration.">
-  <title>Continuity OS · Universal App</title>
+  <meta name="description" content="Continuity OS Universal Fullstack App with PRD Planning, Token Optimizer, Jev Decision Gate, and 51 AI Skills.">
+  <title>Continuity OS · Universal App &amp; Skill Hub</title>
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/styles.css">
@@ -18,7 +18,7 @@
         <div class="brand-icon">🧠</div>
         <div>
           <span class="brand-title">Continuity OS</span>
-          <span class="brand-badge">Universal App</span>
+          <span class="brand-badge">Universal Engine</span>
         </div>
       </a>
       <div class="header-actions">
@@ -35,8 +35,11 @@
   <!-- Navigation Tabs -->
   <nav class="nav-tabs" role="tablist">
     <button class="tab-btn active" data-tab="dashboard" role="tab">📊 Dashboard</button>
-    <button class="tab-btn" data-tab="records" role="tab">🗄️ Records</button>
-    <button class="tab-btn" data-tab="dispatch" role="tab">⚡ AI Dispatcher</button>
+    <button class="tab-btn" data-tab="prd" role="tab">📝 PRD &amp; Planning</button>
+    <button class="tab-btn" data-tab="tokens" role="tab">💎 Token Optimizer</button>
+    <button class="tab-btn" data-tab="dispatch" role="tab">⚡ AI Router &amp; Jev</button>
+    <button class="tab-btn" data-tab="skills" role="tab">🧠 Skills (51)</button>
+    <button class="tab-btn" data-tab="records" role="tab">🗄️ Records &amp; CRM</button>
     <button class="tab-btn" data-tab="api" role="tab">🔌 API Console</button>
     <button class="tab-btn" data-tab="settings" role="tab">⚙️ Settings</button>
   </nav>
@@ -48,11 +51,11 @@
       <div class="grid-cols-3">
         <div class="card">
           <div class="stat-value" id="statRecords">0</div>
-          <div class="stat-label">Active Records</div>
+          <div class="stat-label">Active Records &amp; Prospects</div>
         </div>
         <div class="card">
-          <div class="stat-value" id="statEvents">0</div>
-          <div class="stat-label">Logged Audit Events</div>
+          <div class="stat-value" id="statSkills">51</div>
+          <div class="stat-label">Armed AI Skills</div>
         </div>
         <div class="card">
           <div class="stat-value" id="statUptime">0s</div>
@@ -64,29 +67,30 @@
         <!-- Quick Action / Status -->
         <div class="card">
           <div class="card-header">
-            <h2 class="card-title">🚀 Fast Launch & Adapt</h2>
+            <h2 class="card-title">🚀 Fast Launch &amp; Adapt</h2>
           </div>
           <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
-            This barebones fullstack application is pre-wired with <strong>Node 24</strong>, built-in <strong>SQLite</strong>, <strong>PWA caching</strong>, and <strong>Continuity OS AI routing</strong>. Adapt it for any product in minutes.
+            Continuity OS is a zero-dependency fullstack engine. Pre-wired with <strong>Node 24</strong>, built-in <strong>SQLite</strong>, <strong>PRD Planning</strong>, <strong>Token Spend Optimizer</strong>, <strong>Jev Decision Gate</strong>, and <strong>51 permanent skills</strong>.
           </p>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <button class="btn btn-primary" id="btnQuickRecord">+ Add Sample Record</button>
             <a href="/busy-call.html" target="_blank" class="btn btn-secondary" style="text-decoration:none;">📞 Missed-Call Simulator</a>
-            <button class="btn btn-secondary" id="btnRefreshStats">🔄 Refresh Stats</button>
+            <button class="btn btn-secondary" id="btnRefreshStats">🔄 Refresh Telemetry</button>
           </div>
         </div>
 
         <!-- System Information -->
         <div class="card">
           <div class="card-header">
-            <h2 class="card-title">🖥️ Stack Specifications</h2>
+            <h2 class="card-title">🖥️ Operating Capabilities</h2>
           </div>
           <table style="font-size: 0.85rem;">
             <tbody>
               <tr><td style="color: var(--text-muted);">Runtime</td><td id="infoNodeVersion">Node 24</td></tr>
               <tr><td style="color: var(--text-muted);">Database</td><td>Native node:sqlite (Zero-dep)</td></tr>
-              <tr><td style="color: var(--text-muted);">PWA Service Worker</td><td id="infoSwStatus">Active</td></tr>
-              <tr><td style="color: var(--text-muted);">AI Orchestrator</td><td>Continuity OS dispatch.py</td></tr>
+              <tr><td style="color: var(--text-muted);">Decisions</td><td>Jev System-One Decision Gate</td></tr>
+              <tr><td style="color: var(--text-muted);">Token Discipline</td><td>compress-token-spend engine</td></tr>
+              <tr><td style="color: var(--text-muted);">Canonical Skills</td><td>51 skills in skills/ &amp; CLI dirs</td></tr>
             </tbody>
           </table>
         </div>
@@ -116,18 +120,210 @@
       </div>
     </section>
 
-    <!-- Tab 2: Records (Generic Entity Storage) -->
+    <!-- Tab 2: PRD & Planning Studio -->
+    <section id="tab-prd" class="tab-panel">
+      <div class="grid-cols-2">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">📝 PRD Planning Studio</h2>
+            <button class="btn btn-secondary btn-sm" id="btnReloadPrds">🔄 Refresh</button>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 14px;">
+            Grounded in the <code>plan-create-prd</code> methodology: Focus on <em>intent and problem</em>, not solution instructions. Hand engineering decisions upstream to the architecture spec.
+          </p>
+          <div id="prdListContainer" style="margin-bottom: 16px;">
+            <div style="color: var(--text-muted); font-size: 0.85rem;">Loading existing PRDs...</div>
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid var(--border); margin: 16px 0;">
+
+          <h3 style="font-size: 0.95rem; margin-bottom: 10px;">Draft New Application PRD</h3>
+          <form id="prdDraftForm">
+            <div class="form-group">
+              <label class="form-label" for="prdProductName">Product / Application Name</label>
+              <input type="text" id="prdProductName" class="form-control" placeholder="e.g., Fleet Maintenance Tracker, AI Voice Agent" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="prdProblem">Core Problem Statement</label>
+              <textarea id="prdProblem" class="form-control" rows="3" placeholder="What operational friction or revenue leak happens today? Why do status quo tools fail?"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="prdHypothesis">Falsifiable Hypothesis</label>
+              <input type="text" id="prdHypothesis" class="form-control" placeholder="If we automate X within Y seconds, target users will achieve Z...">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="prdAudience">Target Users &amp; Market</label>
+              <input type="text" id="prdAudience" class="form-control" placeholder="e.g. Independent pizzerias in Greater Binghamton (607)">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="prdMvp">MVP Scope (What's In)</label>
+              <textarea id="prdMvp" class="form-control" rows="2" placeholder="- Feature 1&#10;- Feature 2&#10;- Free 14-day trial"></textarea>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button type="submit" class="btn btn-primary" id="btnGeneratePrd">⚡ Generate PRD Draft</button>
+              <button type="button" class="btn btn-secondary" id="btnFillSamplePrd">Sample Idea</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">📄 PRD Document Viewer</h2>
+            <div style="display: flex; gap: 6px;">
+              <button class="btn btn-secondary btn-sm" id="btnCopyPrdContent">📋 Copy Markdown</button>
+              <button class="btn btn-primary btn-sm" id="btnSavePrdContent">💾 Save to Repo</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <input type="text" id="prdFilenameInput" class="form-control" style="font-family: monospace; font-size: 0.85rem;" placeholder="PRD-FILENAME.md">
+          </div>
+          <textarea id="prdViewerArea" class="form-control" rows="22" style="font-family: monospace; font-size: 0.82rem; line-height: 1.45;" placeholder="Select a PRD on the left or generate a new draft to view and edit..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: Token Spend Optimizer -->
+    <section id="tab-tokens" class="tab-panel">
+      <div class="grid-cols-2">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">💎 Token Spend Optimizer</h2>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 14px;">
+            Based on the <code>compress-token-spend</code> skill. Frontier models are the last resort, not the default. Structure prompts for cache hits, trim output tokens (cost 3-5x input), and replace full LLM calls with Jev decisions.
+          </p>
+          <form id="tokenForm">
+            <div class="form-group">
+              <label class="form-label" for="tokenPromptInput">Prompt / Context Text</label>
+              <textarea id="tokenPromptInput" class="form-control" rows="8" placeholder="Paste your system prompt, context file, or task instructions here to analyze spend and token efficiency..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="tokenExpectedOutput">Expected Output Tokens</label>
+              <input type="number" id="tokenExpectedOutput" class="form-control" value="500" min="50" max="8000">
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="submit" class="btn btn-primary" id="btnAnalyzeTokens">💎 Analyze Tokens &amp; Cost</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnSamplePromptSmall">Small Task</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnSamplePromptLarge">Heavy Context</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnSamplePromptDecision">Classification</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">📊 Spend &amp; Cost Discipline Report</h2>
+          </div>
+          <div id="tokenReportContainer">
+            <p style="color: var(--text-muted); font-size: 0.85rem;">Submit a prompt on the left to calculate input tokens, tier pricing comparisons, and potential 90%+ cost reductions.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 4: AI Task Dispatcher & Jev Gate -->
+    <section id="tab-dispatch" class="tab-panel">
+      <div class="grid-cols-2">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">⚡ Route Agent Task</h2>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 14px;">
+            Continuity OS router. Dispatches duty tasks to the cheapest capable model tier via <code>dispatch.py</code> with optional <strong>Jev System-One</strong> decision gating.
+          </p>
+          <form id="dispatchForm">
+            <div class="form-group">
+              <label class="form-label" for="dutyInput">Task / Duty Prompt</label>
+              <textarea id="dutyInput" class="form-control" rows="4" placeholder="e.g., Refactor the authentication endpoint to support OAuth tokens and add unit tests..."></textarea>
+            </div>
+            <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
+              <input type="checkbox" id="dispatchWithJev" checked style="width: auto;">
+              <label for="dispatchWithJev" style="font-size: 0.85rem; font-weight: 600; cursor: pointer;">Enable Jev System-One Decision Layer (--with-jev)</label>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button type="submit" class="btn btn-primary" id="btnRunDispatch">⚡ Classify &amp; Route</button>
+              <button type="button" class="btn btn-secondary" id="btnSampleDuty">Sample Task</button>
+            </div>
+          </form>
+
+          <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
+
+          <!-- Standalone Jev Gate Tester -->
+          <div class="card-header" style="margin-bottom: 8px;">
+            <h3 style="font-size: 0.95rem; font-weight: 700;">⚖️ Standalone Jev Decision Gate</h3>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 12px;">
+            Directly test Jev question banks without drafting text: <code>act-gate</code> (safety/policy), <code>mode-router</code> (persona), <code>retry-stop</code> (loop control), <code>legal-risk</code>.
+          </p>
+          <form id="jevForm">
+            <div class="form-group">
+              <label class="form-label" for="jevStateInput">State / Action Description</label>
+              <input type="text" id="jevStateInput" class="form-control" placeholder="e.g., Drop production database table, send email outreach to prospect" value="Send outreach email to Colleen at Cortese Restaurant">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="jevBankSelect">Question Bank</label>
+              <select id="jevBankSelect" class="form-control">
+                <option value="act-gate">act-gate (Action vs Stop vs Ask Human)</option>
+                <option value="mode-router">mode-router (Persona &amp; Working Overlay)</option>
+                <option value="retry-stop">retry-stop (Retry vs Stop Decision)</option>
+                <option value="legal-risk">legal-risk (Compliance &amp; Exposure)</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-secondary" id="btnRunJev">⚖️ Evaluate Policy Gate</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">📋 Routing &amp; Jev Output</h2>
+          </div>
+          <div id="dispatchResult">
+            <p style="color: var(--text-muted); font-size: 0.85rem;">Submit a task or Jev evaluation to inspect model tier, routing plan, and policy verdicts.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 5: Canonical Skills Catalog (51) -->
+    <section id="tab-skills" class="tab-panel">
+      <div class="card" style="margin-bottom: 20px;">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">🧠 Canonical Skills Catalog (<span id="skillCountBadge">51</span>)</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">Permanently armed across the repo and all CLI environments.</p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="skillSearchInput" class="form-control" style="width: 220px;" placeholder="Search skills...">
+          </div>
+        </div>
+        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px;" id="skillCategoryFilters">
+          <button class="btn btn-secondary btn-sm active" data-cat="all">All (51)</button>
+          <button class="btn btn-secondary btn-sm" data-cat="planning">Planning (3)</button>
+          <button class="btn btn-secondary btn-sm" data-cat="pivotal-loop">Pivotal Loops (12)</button>
+          <button class="btn btn-secondary btn-sm" data-cat="routing">Routing &amp; Jev (4)</button>
+          <button class="btn btn-secondary btn-sm" data-cat="enforcement">Hooks &amp; Dark Factory (4)</button>
+          <button class="btn btn-secondary btn-sm" data-cat="memory">Second Brain (3)</button>
+          <button class="btn btn-secondary btn-sm" data-cat="spend-discipline">Token Discipline (1)</button>
+          <button class="btn btn-secondary btn-sm" data-cat="legal-audit">Legal &amp; Disclosure (5)</button>
+        </div>
+        <div id="skillsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;">
+          <div style="color: var(--text-muted);">Loading skills catalog...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 6: Records & CRM -->
     <section id="tab-records" class="tab-panel">
       <div class="card" style="margin-bottom: 20px;">
         <div class="card-header">
           <div>
-            <h2 class="card-title">🗄️ Universal Entity Records</h2>
-            <p style="color: var(--text-muted); font-size: 0.85rem;">Manage generic records stored in local SQLite.</p>
+            <h2 class="card-title">🗄️ Universal Entity Storage &amp; 607 CRM</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">Pre-seeded with 15 qualified 607 busy-phone outreach prospects.</p>
           </div>
           <button class="btn btn-primary" id="btnOpenNewRecordModal">+ New Record</button>
         </div>
         <div style="display: flex; gap: 10px; margin-bottom: 16px;">
-          <input type="text" id="recordFilterInput" class="form-control" placeholder="Search by ID or type...">
+          <input type="text" id="recordFilterInput" class="form-control" placeholder="Search by name, phone, or category...">
           <button class="btn btn-secondary" id="btnFilterRecords">Filter</button>
         </div>
         <div class="table-responsive">
@@ -149,40 +345,7 @@
       </div>
     </section>
 
-    <!-- Tab 3: AI Task Dispatcher -->
-    <section id="tab-dispatch" class="tab-panel">
-      <div class="grid-cols-2">
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title">⚡ Route Agent Task</h2>
-          </div>
-          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 14px;">
-            Test the Continuity OS router. Dispatches duty tasks to the cheapest capable model tier via <code>dispatch.py</code>.
-          </p>
-          <form id="dispatchForm">
-            <div class="form-group">
-              <label class="form-label" for="dutyInput">Task / Duty Prompt</label>
-              <textarea id="dutyInput" class="form-control" rows="4" placeholder="e.g., Refactor the authentication endpoint to support OAuth tokens and add unit tests..."></textarea>
-            </div>
-            <div style="display: flex; gap: 8px;">
-              <button type="submit" class="btn btn-primary" id="btnRunDispatch">⚡ Classify &amp; Route</button>
-              <button type="button" class="btn btn-secondary" id="btnSampleDuty">Sample Task</button>
-            </div>
-          </form>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title">📋 Routing Result</h2>
-          </div>
-          <div id="dispatchResult">
-            <p style="color: var(--text-muted); font-size: 0.85rem;">Submit a task to view the model tier, routing strategy, token estimation, and persona hint.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Tab 4: API Console -->
+    <!-- Tab 7: API Console -->
     <section id="tab-api" class="tab-panel">
       <div class="card">
         <div class="card-header">
@@ -194,6 +357,8 @@
         <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
           <button class="btn btn-secondary" onclick="runApiCall('/api/health', 'GET')">GET /api/health</button>
           <button class="btn btn-secondary" onclick="runApiCall('/api/stats', 'GET')">GET /api/stats</button>
+          <button class="btn btn-secondary" onclick="runApiCall('/api/skills', 'GET')">GET /api/skills</button>
+          <button class="btn btn-secondary" onclick="runApiCall('/api/prds', 'GET')">GET /api/prds</button>
           <button class="btn btn-secondary" onclick="runApiCall('/api/records', 'GET')">GET /api/records</button>
           <button class="btn btn-secondary" onclick="runApiCall('/api/events', 'GET')">GET /api/events</button>
           <button class="btn btn-secondary" onclick="runApiCall('/api/settings', 'GET')">GET /api/settings</button>
@@ -202,7 +367,7 @@
       </div>
     </section>
 
-    <!-- Tab 5: Settings -->
+    <!-- Tab 8: Settings -->
     <section id="tab-settings" class="tab-panel">
       <div class="card">
         <div class="card-header">
@@ -211,11 +376,19 @@
         <form id="settingsForm">
           <div class="form-group">
             <label class="form-label" for="settingAppName">Application Name</label>
-            <input type="text" id="settingAppName" class="form-control" value="Continuity OS Universal App">
+            <input type="text" id="settingAppName" class="form-control" value="Continuity OS · Telephony &amp; Recovery Hub">
           </div>
           <div class="form-group">
             <label class="form-label" for="settingAppVersion">Version</label>
             <input type="text" id="settingAppVersion" class="form-control" value="1.0.0">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="settingOutreachCampaign">Active Outreach Campaign</label>
+            <input type="text" id="settingOutreachCampaign" class="form-control" value="607-busy-phone-recovery">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="settingPilotDays">Pilot Duration (Days)</label>
+            <input type="number" id="settingPilotDays" class="form-control" value="14">
           </div>
           <button type="submit" class="btn btn-primary">Save Settings</button>
         </form>
@@ -234,20 +407,21 @@
         <div class="modal-body">
           <div class="form-group">
             <label class="form-label" for="recordTypeInput">Record Type</label>
-            <input type="text" id="recordTypeInput" class="form-control" required placeholder="e.g. user, task, order, contact, device">
+            <input type="text" id="recordTypeInput" class="form-control" required placeholder="e.g. prospect, task, user, order">
           </div>
           <div class="form-group">
             <label class="form-label" for="recordStatusInput">Status</label>
             <select id="recordStatusInput" class="form-control">
               <option value="active">Active</option>
+              <option value="qualified">Qualified</option>
+              <option value="contacted">Contacted</option>
               <option value="pending">Pending</option>
               <option value="completed">Completed</option>
-              <option value="archived">Archived</option>
             </select>
           </div>
           <div class="form-group">
             <label class="form-label" for="recordJsonInput">Data Payload (JSON)</label>
-            <textarea id="recordJsonInput" class="form-control" rows="5" placeholder='{"name": "Item 1", "priority": "high"}'></textarea>
+            <textarea id="recordJsonInput" class="form-control" rows="5" placeholder='{"name": "Item 1", "phone": "607-555-0100"}'></textarea>
           </div>
         </div>
         <div class="modal-footer">
@@ -255,6 +429,24 @@
           <button type="submit" class="btn btn-primary">Create Record</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal Dialog: Skill Viewer -->
+  <div id="skillModal" class="modal-backdrop" style="display: none;">
+    <div class="modal" style="max-width: 720px; max-height: 85vh; display: flex; flex-direction: column;">
+      <div class="modal-header">
+        <h3 id="skillModalTitle" style="font-size: 1.1rem; font-weight: 700;">Skill Details</h3>
+        <button class="btn-icon" id="btnCloseSkillModal" style="border: none;">✕</button>
+      </div>
+      <div class="modal-body" style="overflow-y: auto; flex: 1;">
+        <div id="skillModalCategory" style="margin-bottom: 8px;"></div>
+        <pre id="skillModalContent" class="code-box" style="white-space: pre-wrap; font-size: 0.8rem;"></pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btnCopySkillContent">📋 Copy Prompt</button>
+        <button type="button" class="btn btn-primary" id="btnDismissSkillModal">Close</button>
+      </div>
     </div>
   </div>
 
