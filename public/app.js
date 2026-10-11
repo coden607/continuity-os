@@ -104,10 +104,19 @@
   const guardrailOutput = document.getElementById('guardrailOutput');
 
   const btnAuditBrain = document.getElementById('btnAuditBrain');
-  const btnFactoryTriage = document.getElementById('btnFactoryTriage');
   const btnExportCrew = document.getElementById('btnExportCrew');
   const btnExportLangGraph = document.getElementById('btnExportLangGraph');
   const brainFactoryOutput = document.getElementById('brainFactoryOutput');
+
+  // Factory Worktree & Worker Elements
+  const btnRefreshWorktrees = document.getElementById('btnRefreshWorktrees');
+  const btnWorkerTick = document.getElementById('btnWorkerTick');
+  const btnEnqueueFactoryTask = document.getElementById('btnEnqueueFactoryTask');
+  const btnValidateHoldouts = document.getElementById('btnValidateHoldouts');
+  const factoryIssueId = document.getElementById('factoryIssueId');
+  const factoryTitle = document.getElementById('factoryTitle');
+  const factoryBody = document.getElementById('factoryBody');
+  const factoryOutput = document.getElementById('factoryOutput');
 
   // --- Toasts ---
   function showToast(message, type = 'info') {
@@ -1028,6 +1037,75 @@
         showToast('Exported LangGraph configuration', 'success');
       } catch (err) {
         brainFactoryOutput.innerHTML = `<pre class="code-box" style="color:var(--accent-red);">${escapeHtml(err.message)}</pre>`;
+      }
+    });
+  }
+
+  // --- Autonomous Task Factory & Worktrees Event Listeners ---
+  if (btnRefreshWorktrees) {
+    btnRefreshWorktrees.addEventListener('click', async () => {
+      factoryOutput.innerHTML = '<pre class="code-box">Listing active git worktrees...</pre>';
+      try {
+        const res = await fetchJson('/api/factory/worktrees');
+        factoryOutput.innerHTML = `<pre class="code-box">${escapeHtml(JSON.stringify(res, null, 2))}</pre>`;
+        showToast(`Active worktrees: ${res.worktrees?.length || 0}`, 'info');
+      } catch (err) {
+        factoryOutput.innerHTML = `<pre class="code-box" style="color:var(--accent-red);">${escapeHtml(err.message)}</pre>`;
+      }
+    });
+  }
+
+  if (btnEnqueueFactoryTask) {
+    btnEnqueueFactoryTask.addEventListener('click', async () => {
+      const issueId = factoryIssueId?.value.trim() || '#feat-101';
+      const title = factoryTitle?.value.trim() || 'New Factory Task';
+      const body = factoryBody?.value.trim() || '';
+
+      factoryOutput.innerHTML = `<pre class="code-box">Enqueuing task ${escapeHtml(issueId)} into factory...</pre>`;
+      try {
+        const res = await fetchJson('/api/factory/tasks', {
+          method: 'POST',
+          body: JSON.stringify({ issueId, title, body }),
+        });
+        factoryOutput.innerHTML = `<pre class="code-box">${escapeHtml(JSON.stringify(res, null, 2))}</pre>`;
+        showToast(`Task ${issueId} enqueued: ${res.job_id}`, 'success');
+      } catch (err) {
+        factoryOutput.innerHTML = `<pre class="code-box" style="color:var(--accent-red);">${escapeHtml(err.message)}</pre>`;
+      }
+    });
+  }
+
+  if (btnWorkerTick) {
+    btnWorkerTick.addEventListener('click', async () => {
+      factoryOutput.innerHTML = '<pre class="code-box">Worker tick initiated: claiming job, executing Archon 2 DAG in isolated worktree, running holdout tests, and generating PR...</pre>';
+      try {
+        const res = await fetchJson('/api/factory/worker/tick', { method: 'POST' });
+        factoryOutput.innerHTML = `<pre class="code-box">${escapeHtml(JSON.stringify(res, null, 2))}</pre>`;
+        if (res.pr_url) {
+          showToast(`PR Created: ${res.pr_url}`, 'success');
+        } else if (res.processed === false) {
+          showToast('No pending factory jobs in queue', 'info');
+        } else {
+          showToast(`Job ${res.job_id || ''} finished: ${res.status}`, 'info');
+        }
+      } catch (err) {
+        factoryOutput.innerHTML = `<pre class="code-box" style="color:var(--accent-red);">${escapeHtml(err.message)}</pre>`;
+      }
+    });
+  }
+
+  if (btnValidateHoldouts) {
+    btnValidateHoldouts.addEventListener('click', async () => {
+      factoryOutput.innerHTML = '<pre class="code-box">Running Phase A & B holdout validation gate...</pre>';
+      try {
+        const res = await fetchJson('/api/factory/validate', {
+          method: 'POST',
+          body: JSON.stringify({ baseRef: 'main', allowTestModification: true }),
+        });
+        factoryOutput.innerHTML = `<pre class="code-box">${escapeHtml(JSON.stringify(res, null, 2))}</pre>`;
+        showToast(`Holdout Validation: ${res.passed ? 'PASSED' : 'FAILED'}`, res.passed ? 'success' : 'warning');
+      } catch (err) {
+        factoryOutput.innerHTML = `<pre class="code-box" style="color:var(--accent-red);">${escapeHtml(err.message)}</pre>`;
       }
     });
   }
