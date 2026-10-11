@@ -8,6 +8,7 @@ Implements:
 - SQLite storage persistence
 """
 
+import os
 import sqlite3
 import math
 import hashlib
@@ -59,6 +60,9 @@ class RAGEngine:
         self._ensure_table()
 
     def _ensure_table(self):
+        db_dir = os.path.dirname(self.db_path)
+        if db_dir:
+            os.makedirs(db_dir, exist_ok=True)
         with sqlite3.connect(self.db_path) as conn:
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS rag_chunks (

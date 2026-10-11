@@ -462,4 +462,12 @@ describe('Continuity OS · Universal HTTP Server', () => {
     assert.equal(n8nRes.body.received, true);
     assert.ok(n8nRes.body.jobId);
   });
+
+  it('lists isolated git worktrees for factory task runners', async () => {
+    const wtRes = await request(testPort, '/api/factory/worktrees');
+    assert.equal(wtRes.status, 200);
+    assert.ok(Array.isArray(wtRes.body.worktrees));
+    assert.ok(wtRes.body.worktrees.length > 0);
+    assert.ok(wtRes.body.worktrees[0].path);
+  });
 });

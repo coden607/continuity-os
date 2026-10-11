@@ -27,6 +27,8 @@ SecondBrainEngine = importlib.import_module("second-brain.engine").SecondBrainEn
 from rag.engine import RAGEngine
 from integrations.adapters import CrewAIAdapter, LangGraphAdapter, N8NAdapter
 from learning.engine import SelfLearningEngine
+from factory.worktree import WorktreeManager
+from factory.pipeline import FactoryPipelineDispatcher
 
 
 def main():
@@ -50,6 +52,23 @@ def main():
     factory_build.add_argument("--issue-id", default="#1")
     factory_build.add_argument("--title", required=True)
     factory_build.add_argument("--changes", default="Implemented changes")
+
+    factory_wt_list = subparsers.add_parser("factory-worktree-list")
+
+    factory_wt_create = subparsers.add_parser("factory-worktree-create")
+    factory_wt_create.add_argument("--issue-id", required=True)
+    factory_wt_create.add_argument("--base-branch", default="main")
+
+    factory_wt_remove = subparsers.add_parser("factory-worktree-remove")
+    factory_wt_remove.add_argument("--issue-id", required=True)
+    factory_wt_remove.add_argument("--keep-branch", action="store_true", default=True)
+
+    factory_pipe_run = subparsers.add_parser("factory-pipeline-run")
+    factory_pipe_run.add_argument("--issue-id", required=True)
+    factory_pipe_run.add_argument("--title", required=True)
+    factory_pipe_run.add_argument("--body", default="")
+    factory_pipe_run.add_argument("--base-branch", default="main")
+    factory_pipe_run.add_argument("--auto-commit", action="store_true", default=True)
 
     # 3. Second Brain
     brain_state = subparsers.add_parser("brain-state")
@@ -112,6 +131,37 @@ def main():
         validation = engine.run_holdout_validation({"passed": 19, "failed": 0, "regressions": []})
         pr = engine.prepare_pull_request(args.issue_id, args.title, [args.changes])
         print(json.dumps({"validation": validation, "pull_request": pr}, indent=2))
+
+    elif args.subcommand == "factory-worktree-list":
+        mgr = WorktreeManager()
+        worktrees = mgr.list_worktrees()
+        print(json.dumps({"worktrees": worktrees}, indent=2))
+
+    elif args.subcommand == "factory-worktree-create":
+        mgr = WorktreeManager()
+        ctx = mgr.create_worktree(args.issue_id, base_branch=args.base_branch)
+        print(json.dumps({
+            "issue_id": ctx.issue_id,
+            "branch": ctx.branch,
+            "worktree_path": str(ctx.worktree_path),
+            "created": True
+        }, indent=2))
+
+    elif args.subcommand == "factory-worktree-remove":
+        mgr = WorktreeManager()
+        success = mgr.remove_worktree(args.issue_id, keep_branch=args.keep_branch)
+        print(json.dumps({"issue_id": args.issue_id, "removed": success}, indent=2))
+
+    elif args.subcommand == "factory-pipeline-run":
+        dispatcher = FactoryPipelineDispatcher()
+        res = dispatcher.run_issue_pipeline(
+            issue_id=args.issue_id,
+            title=args.title,
+            body=args.body,
+            base_branch=args.base_branch,
+            auto_commit=args.auto_commit
+        )
+        print(json.dumps(res, indent=2))
 
     elif args.subcommand == "brain-state":
         engine = SecondBrainEngine()

@@ -668,6 +668,29 @@ ${nonGoals || '- Complex third-party integrations\n- Multi-region compliance cer
           return sendJson(res, 200, JSON.parse(stdout));
         }
 
+        if (pathname === '/api/factory/worktrees' && method === 'GET') {
+          const { stdout } = await execFileAsync('python3', [join(ROOT_DIR, 'orchestration', 'bridge.py'), 'factory-worktree-list']);
+          return sendJson(res, 200, JSON.parse(stdout));
+        }
+
+        if (pathname === '/api/factory/pipeline/run' && method === 'POST') {
+          const body = await parseBody(req);
+          const issueId = body.issueId || '#factory-' + Date.now().toString(36);
+          const title = (body.title || '').trim();
+          const issueBody = body.body || '';
+          const baseBranch = body.baseBranch || 'main';
+          if (!title) return sendJson(res, 400, { error: 'Missing issue title' });
+          const { stdout } = await execFileAsync('python3', [
+            join(ROOT_DIR, 'orchestration', 'bridge.py'),
+            'factory-pipeline-run',
+            '--issue-id', issueId,
+            '--title', title,
+            '--body', issueBody,
+            '--base-branch', baseBranch,
+          ]);
+          return sendJson(res, 200, JSON.parse(stdout));
+        }
+
         // --- Second Brain Memory Engine (STATE vs EVENT + Anti-Rot Audit) ---
         if (pathname === '/api/brain/state' && method === 'GET') {
           const { stdout } = await execFileAsync('python3', [join(ROOT_DIR, 'orchestration', 'bridge.py'), 'brain-state']);
