@@ -232,9 +232,17 @@ def cmd_brain(args):
 def cmd_factory(args):
     bridge = BASE_DIR / "orchestration" / "bridge.py"
     if args.action == "triage":
-        cmd = [sys.executable, str(bridge), "factory-triage", "--issue-id", args.issue, "--title", args.title, "--body", args.body or ""]
+        cmd = [sys.executable, str(bridge), "factory-triage", "--issue-id", args.issue or "#1", "--title", args.title or "Issue", "--body", args.body or ""]
+    elif args.action == "worktrees":
+        cmd = [sys.executable, str(bridge), "factory-worktree-list"]
+    elif args.action == "validate":
+        cmd = [sys.executable, str(bridge), "factory-validate"]
+    elif args.action == "tick":
+        cmd = [sys.executable, str(bridge), "factory-worker-tick"]
+    elif args.action == "run":
+        cmd = [sys.executable, str(bridge), "factory-pipeline-run", "--issue-id", args.issue or "#1", "--title", args.title or "Autonomous Task", "--body", args.body or ""]
     else:
-        cmd = [sys.executable, str(bridge), "factory-build", "--issue-id", args.issue, "--title", args.title]
+        cmd = [sys.executable, str(bridge), "factory-build", "--issue-id", args.issue or "#1", "--title", args.title or "Build Task"]
     res = subprocess.run(cmd, capture_output=True, text=True)
     print(res.stdout)
     return res.returncode
@@ -329,10 +337,10 @@ def main():
     p_brain.set_defaults(func=cmd_brain)
 
     # factory
-    p_fac = subparsers.add_parser("factory", help="Dark Factory issue triage and build")
-    p_fac.add_argument("action", choices=["triage", "build"], help="Factory action")
+    p_fac = subparsers.add_parser("factory", help="Autonomous Software Factory & Worktree operations")
+    p_fac.add_argument("action", choices=["triage", "build", "worktrees", "run", "validate", "tick"], help="Factory action")
     p_fac.add_argument("--issue", default="#1", help="Issue identifier")
-    p_fac.add_argument("--title", required=True, help="Issue title")
+    p_fac.add_argument("--title", default="", help="Issue or task title")
     p_fac.add_argument("--body", default="", help="Issue description")
     p_fac.set_defaults(func=cmd_factory)
 

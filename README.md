@@ -48,7 +48,7 @@ That gives you: 7 skills in every detected CLI dir + the whole scaffold in `~/co
 Continuity OS includes a zero-dependency fullstack application template with a mobile-ready PWA shell, native Node 24 SQLite storage, REST endpoints, automated tests, and the complete modern agentic architecture permanently integrated.
 
 - **🤖 Archon & Archon 2 Multi-Agent Engine:** Directed Acyclic Graph (DAG) task decomposition, dynamic role synthesis (`Architect`, `Builder`, `Critic`, `Verifier`), reflection loops (`Generator -> Critic -> Refiner`), and execution trace logging (`orchestration/archon/`, `/api/archon/plan`, `/api/archon/execute`).
-- **🏭 Dark Factory (Autonomy Levels 1–5):** Dan Shapiro's 5 autonomy levels for unattended coding. Stateful issue triage, automated holdout test verification, and automated PR generation (`factory/engine.py`, `/api/factory/triage`, `/api/factory/build`).
+- **🏭 Autonomous Software Factory (Dan Shapiro Levels 1–5):** Unattended software engineering pipeline. Spawns isolated ephemeral git worktrees (`factory/worktree.py`), dispatches Archon 2 DAGs (`factory/pipeline.py`), validates holdout test suites and blast-radius invariant guards (`factory/validator.py`), synthesizes conventional commit and markdown PR payloads (`factory/pr.py`), and executes 30-minute stateful triage cron loops (`factory/worker.py`).
 - **🧠 3-Tier Second Brain Memory:** Active mutable truth (`MEMORY.md`), daily immutable event journal (`daily/YYYY-MM-DD.md`), and curated knowledge base. Automated contradiction detection and anti-rot memory health audit (`second-brain/engine.py`, `/api/brain/state`, `/api/brain/audit`).
 - **📚 Docling & Paperclip Semantic RAG:** Document parsing preserving markdown headings, recursive character chunker, and structural semantic chunker with breadcrumbs. Cosine vector similarity + BM25 keyword hybrid search (`rag/`, `/api/rag/ingest`, `/api/rag/search`).
 - **🛡️ Deterministic Guardrails & Pydantic V2:** Input/output safety screening, prompt injection detection, API key/credential leak prevention, PII redactor, and typed schemas (`guardrails/`, `/api/guardrails/check`).
@@ -60,7 +60,7 @@ Continuity OS includes a zero-dependency fullstack application template with a m
 - **🛠️ Unified Python CLI:** `python3 manage.py` (`archon`, `rag`, `guardrails`, `brain`, `factory`, `tokens`, `jev`, `prds`, `scaffold`, `serve`, `test`).
 
 ```bash
-# Run tests (26/26 passing) & typecheck
+# Run tests (28/28 passing) & typecheck
 npm test && npm run typecheck
 
 # Start local server (http://localhost:3000)
@@ -68,6 +68,9 @@ npm start
 
 # Python management CLI
 python3 manage.py archon "Build automated SQLite migration harness"
+python3 manage.py factory worktrees
+python3 manage.py factory validate
+python3 manage.py factory tick
 python3 manage.py brain audit
 python3 manage.py guardrails "Test prompt injection sk-1234..."
 python3 manage.py jev --state "Perform database migration" --bank act-gate

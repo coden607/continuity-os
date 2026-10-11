@@ -444,6 +444,15 @@ describe('Continuity OS · Universal HTTP Server', () => {
     const lgRes = await request(testPort, '/api/integrations/langgraph');
     assert.equal(lgRes.status, 200);
     assert.equal(lgRes.body.graph_type, 'LangGraph_StateGraph');
+
+    const lcRes = await request(testPort, '/api/integrations/langchain');
+    assert.equal(lcRes.status, 200);
+    assert.equal(lcRes.body.chain.chain_type, 'LangChain_LCEL_Pipeline');
+    assert.ok(Array.isArray(lcRes.body.tools));
+
+    const llamaRes = await request(testPort, '/api/integrations/llamaindex');
+    assert.equal(llamaRes.status, 200);
+    assert.equal(llamaRes.body.engine_type, 'LlamaIndex_VectorIndexRetriever');
   });
 
   it('extracts self-learning invariants and handles n8n workflow triggers', async () => {
@@ -461,5 +470,41 @@ describe('Continuity OS · Universal HTTP Server', () => {
     assert.equal(n8nRes.status, 200);
     assert.equal(n8nRes.body.received, true);
     assert.ok(n8nRes.body.jobId);
+  });
+
+  it('lists isolated git worktrees for factory task runners', async () => {
+    const wtRes = await request(testPort, '/api/factory/worktrees');
+    assert.equal(wtRes.status, 200);
+    assert.ok(Array.isArray(wtRes.body.worktrees));
+    assert.ok(wtRes.body.worktrees.length > 0);
+    assert.ok(wtRes.body.worktrees[0].path);
+  });
+
+  it('enqueues autonomous factory tasks and validates holdout test suites', async () => {
+    const taskRes = await request(testPort, '/api/factory/tasks', {
+      method: 'POST',
+      body: {
+        issueId: '#999',
+        title: 'Add distributed tracing middleware',
+        body: 'Implement OpenTelemetry tracing span exporter',
+      },
+    });
+    assert.equal(taskRes.status, 201);
+    assert.ok(taskRes.body.job_id);
+    assert.equal(taskRes.body.status, 'enqueued');
+
+    const valRes = await request(testPort, '/api/factory/validate', {
+      method: 'POST',
+      body: {
+        baseRef: 'main',
+        allowTestModification: true,
+        maxFiles: 30,
+      },
+    });
+    assert.equal(valRes.status, 200);
+    assert.ok(valRes.body.phase_a);
+    assert.equal(valRes.body.phase_a.passed, true);
+    assert.ok(valRes.body.phase_b);
+    assert.equal(valRes.body.phase_b.passed, true);
   });
 });

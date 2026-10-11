@@ -198,19 +198,61 @@ Vector retrieval runs cosine similarity over 64-dim embeddings.</textarea>
         <!-- Second Brain & Factory -->
         <div class="card">
           <div class="card-header">
-            <h2 class="card-title">🧠 Second Brain &amp; Dark Factory Control</h2>
+            <h2 class="card-title">🧠 Second Brain &amp; Integrations</h2>
           </div>
           <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;">
-            Audits the 3-tier memory (STATE vs EVENT), detects contradictions, and triggers Dan Shapiro Level 4 autonomous triage.
+            Audits the 3-tier memory (STATE vs EVENT), detects contradictions, and exports multi-agent topologies.
           </p>
           <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
             <button class="btn btn-secondary btn-sm" id="btnAuditBrain">🧠 Audit Second Brain</button>
-            <button class="btn btn-secondary btn-sm" id="btnFactoryTriage">🏭 Triage Sample Issue</button>
             <button class="btn btn-secondary btn-sm" id="btnExportCrew">👥 Export CrewAI</button>
             <button class="btn btn-secondary btn-sm" id="btnExportLangGraph">🕸️ Export LangGraph</button>
+            <button class="btn btn-secondary btn-sm" id="btnExportLangChain">🦜 Export LangChain</button>
+            <button class="btn btn-secondary btn-sm" id="btnExportLlamaIndex">🦙 Export LlamaIndex</button>
           </div>
           <div id="brainFactoryOutput">
-            <pre class="code-box" style="font-size: 0.8rem; max-height: 160px; overflow-y: auto;">Click a button above to run Second Brain or Factory operations...</pre>
+            <pre class="code-box" style="font-size: 0.8rem; max-height: 160px; overflow-y: auto;">Click a button above to run Second Brain or Integration operations...</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Autonomous Task Factory & Worktree Dashboard -->
+      <div class="card" style="margin-top: 16px;">
+        <div class="card-header">
+          <h2 class="card-title">🏭 Autonomous Task Factory &amp; Git Worktrees (Dan Shapiro Level 4)</h2>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-secondary btn-sm" id="btnRefreshWorktrees">🔄 Refresh Worktrees</button>
+            <button class="btn btn-primary btn-sm" id="btnWorkerTick">⚡ Run Worker Tick</button>
+          </div>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 14px;">
+          Unattended software engineering loop: Claims issues from SQLite queue, spawns isolated <code>.worktrees/issue-&lt;id&gt;</code>, dispatches the Archon 2 DAG, enforces holdout tests and blast-radius guards, and synthesizes Pull Requests with human-on-the-loop review.
+        </p>
+        <div class="grid-cols-2">
+          <div>
+            <h3 style="font-size: 0.9rem; margin-bottom: 8px;">Enqueue Task into Factory</h3>
+            <div class="form-group">
+              <label class="form-label" for="factoryIssueId">Issue ID</label>
+              <input type="text" id="factoryIssueId" class="form-control" value="#feat-101" placeholder="#101">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="factoryTitle">Task Title</label>
+              <input type="text" id="factoryTitle" class="form-control" value="Add Prometheus metrics endpoint" placeholder="e.g. Implement rate limiting token bucket">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="factoryBody">Task Details</label>
+              <textarea id="factoryBody" class="form-control" rows="2" placeholder="Details and acceptance criteria...">Expose /metrics endpoint for Prometheus scrapers.</textarea>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-primary btn-sm" id="btnEnqueueFactoryTask">📥 Enqueue Task</button>
+              <button class="btn btn-secondary btn-sm" id="btnValidateHoldouts">🛡️ Validate Holdouts</button>
+            </div>
+          </div>
+          <div>
+            <h3 style="font-size: 0.9rem; margin-bottom: 8px;">Active Worktrees &amp; Factory Execution Stream</h3>
+            <div id="factoryOutput">
+              <pre class="code-box" style="font-size: 0.8rem; max-height: 240px; overflow-y: auto;">Click 'Refresh Worktrees', 'Enqueue Task', or 'Run Worker Tick' to inspect factory operations...</pre>
+            </div>
           </div>
         </div>
       </div>
