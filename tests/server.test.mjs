@@ -470,4 +470,31 @@ describe('Continuity OS · Universal HTTP Server', () => {
     assert.ok(wtRes.body.worktrees.length > 0);
     assert.ok(wtRes.body.worktrees[0].path);
   });
+
+  it('enqueues autonomous factory tasks and validates holdout test suites', async () => {
+    const taskRes = await request(testPort, '/api/factory/tasks', {
+      method: 'POST',
+      body: {
+        issueId: '#999',
+        title: 'Add distributed tracing middleware',
+        body: 'Implement OpenTelemetry tracing span exporter',
+      },
+    });
+    assert.equal(taskRes.status, 201);
+    assert.ok(taskRes.body.job_id);
+    assert.equal(taskRes.body.status, 'enqueued');
+
+    const valRes = await request(testPort, '/api/factory/validate', {
+      method: 'POST',
+      body: {
+        baseRef: 'main',
+        allowTestModification: true,
+      },
+    });
+    assert.equal(valRes.status, 200);
+    assert.ok(valRes.body.phase_a);
+    assert.equal(valRes.body.phase_a.passed, true);
+    assert.ok(valRes.body.phase_b);
+    assert.equal(valRes.body.phase_b.passed, true);
+  });
 });

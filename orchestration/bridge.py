@@ -29,6 +29,9 @@ from integrations.adapters import CrewAIAdapter, LangGraphAdapter, N8NAdapter
 from learning.engine import SelfLearningEngine
 from factory.worktree import WorktreeManager
 from factory.pipeline import FactoryPipelineDispatcher
+from factory.validator import HoldoutValidator
+from factory.pr import PRSynthesizer
+from factory.worker import FactoryWorker
 
 
 def main():
@@ -69,6 +72,19 @@ def main():
     factory_pipe_run.add_argument("--body", default="")
     factory_pipe_run.add_argument("--base-branch", default="main")
     factory_pipe_run.add_argument("--auto-commit", action="store_true", default=True)
+
+    factory_val = subparsers.add_parser("factory-validate")
+    factory_val.add_argument("--worktree-path", default="")
+    factory_val.add_argument("--base-ref", default="main")
+    factory_val.add_argument("--allow-test-modification", action="store_true", default=False)
+
+    factory_wk_enq = subparsers.add_parser("factory-worker-enqueue")
+    factory_wk_enq.add_argument("--issue-id", required=True)
+    factory_wk_enq.add_argument("--title", required=True)
+    factory_wk_enq.add_argument("--body", default="")
+    factory_wk_enq.add_argument("--base-branch", default="main")
+
+    factory_wk_tick = subparsers.add_parser("factory-worker-tick")
 
     # 3. Second Brain
     brain_state = subparsers.add_parser("brain-state")
@@ -162,6 +178,41 @@ def main():
             auto_commit=args.auto_commit
         )
         print(json.dumps(res, indent=2))
+
+    elif args.subcommand == "factory-validate":
+        target_path = Path(args.worktree_path) if args.worktree_path else ROOT_DIR
+        validator = HoldoutValidator(allow_test_modification=args.allow_test_modification)
+        verdict = validator.validate_worktree(target_path, base_ref=args.base_ref)
+        print(json.dumps({
+            "passed": verdict.passed,
+            "summary": verdict.summary,
+            "phase_a": {
+                "passed": verdict.phase_a.passed,
+                "exit_code": verdict.phase_a.exit_code,
+                "duration_ms": verdict.phase_a.duration_ms
+            },
+            "phase_b": {
+                "passed": verdict.phase_b.passed,
+                "violations": verdict.phase_b.violations,
+                "files_changed": verdict.phase_b.files_changed,
+                "total_files": verdict.phase_b.total_files,
+                "insertions": verdict.phase_b.insertions,
+                "deletions": verdict.phase_b.deletions
+            }
+        }, indent=2))
+
+    elif args.subcommand == "factory-worker-enqueue":
+        worker = FactoryWorker()
+        job_id = worker.enqueue_task(args.issue_id, args.title, args.body, base_branch=args.base_branch)
+        print(json.dumps({"job_id": job_id, "issue_id": args.issue_id, "status": "enqueued"}, indent=2))
+
+    elif args.subcommand == "factory-worker-tick":
+        worker = FactoryWorker()
+        res = worker.process_next_job()
+        if res:
+            print(json.dumps(res, indent=2))
+        else:
+            print(json.dumps({"processed": False, "message": "No pending jobs"}, indent=2))
 
     elif args.subcommand == "brain-state":
         engine = SecondBrainEngine()

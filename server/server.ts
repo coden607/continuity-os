@@ -691,6 +691,50 @@ ${nonGoals || '- Complex third-party integrations\n- Multi-region compliance cer
           return sendJson(res, 200, JSON.parse(stdout));
         }
 
+        if (pathname === '/api/factory/tasks' && method === 'POST') {
+          const body = await parseBody(req);
+          const issueId = body.issueId || '#task-' + Date.now().toString(36);
+          const title = (body.title || '').trim();
+          const issueBody = body.body || '';
+          const baseBranch = body.baseBranch || 'main';
+          if (!title) return sendJson(res, 400, { error: 'Missing task title' });
+          const { stdout } = await execFileAsync('python3', [
+            join(ROOT_DIR, 'orchestration', 'bridge.py'),
+            'factory-worker-enqueue',
+            '--issue-id', issueId,
+            '--title', title,
+            '--body', issueBody,
+            '--base-branch', baseBranch,
+          ]);
+          return sendJson(res, 201, JSON.parse(stdout));
+        }
+
+        if (pathname === '/api/factory/worker/tick' && method === 'POST') {
+          const { stdout } = await execFileAsync('python3', [
+            join(ROOT_DIR, 'orchestration', 'bridge.py'),
+            'factory-worker-tick',
+          ]);
+          return sendJson(res, 200, JSON.parse(stdout));
+        }
+
+        if (pathname === '/api/factory/validate' && method === 'POST') {
+          const body = await parseBody(req);
+          const baseRef = body.baseRef || 'main';
+          const args = [
+            join(ROOT_DIR, 'orchestration', 'bridge.py'),
+            'factory-validate',
+            '--base-ref', baseRef,
+          ];
+          if (body.allowTestModification) {
+            args.push('--allow-test-modification');
+          }
+          if (body.worktreePath) {
+            args.push('--worktree-path', body.worktreePath);
+          }
+          const { stdout } = await execFileAsync('python3', args);
+          return sendJson(res, 200, JSON.parse(stdout));
+        }
+
         // --- Second Brain Memory Engine (STATE vs EVENT + Anti-Rot Audit) ---
         if (pathname === '/api/brain/state' && method === 'GET') {
           const { stdout } = await execFileAsync('python3', [join(ROOT_DIR, 'orchestration', 'bridge.py'), 'brain-state']);
