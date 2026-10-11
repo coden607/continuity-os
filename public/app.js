@@ -81,11 +81,33 @@
   const btnCloseRecordModal = document.getElementById('btnCloseRecordModal');
   const btnCancelRecordModal = document.getElementById('btnCancelRecordModal');
   const newRecordForm = document.getElementById('newRecordForm');
-  const settingsForm = document.getElementById('settingsForm');
   const settingAppName = document.getElementById('settingAppName');
   const settingAppVersion = document.getElementById('settingAppVersion');
-  const settingOutreachCampaign = document.getElementById('settingOutreachCampaign');
-  const settingPilotDays = document.getElementById('settingPilotDays');
+  const settingOpenRouterKey = document.getElementById('settingOpenRouterKey');
+  const settingAutonomyLevel = document.getElementById('settingAutonomyLevel');
+  const settingWorkerConcurrency = document.getElementById('settingWorkerConcurrency');
+
+  // Agentic Subsystem DOM Elements
+  const archonGoalInput = document.getElementById('archonGoalInput');
+  const btnArchonPlan = document.getElementById('btnArchonPlan');
+  const btnArchonExec = document.getElementById('btnArchonExec');
+  const archonOutput = document.getElementById('archonOutput');
+
+  const ragDocInput = document.getElementById('ragDocInput');
+  const btnRagIngest = document.getElementById('btnRagIngest');
+  const ragQueryInput = document.getElementById('ragQueryInput');
+  const btnRagSearch = document.getElementById('btnRagSearch');
+  const ragOutput = document.getElementById('ragOutput');
+
+  const guardrailTextInput = document.getElementById('guardrailTextInput');
+  const btnRunGuardrail = document.getElementById('btnRunGuardrail');
+  const guardrailOutput = document.getElementById('guardrailOutput');
+
+  const btnAuditBrain = document.getElementById('btnAuditBrain');
+  const btnFactoryTriage = document.getElementById('btnFactoryTriage');
+  const btnExportCrew = document.getElementById('btnExportCrew');
+  const btnExportLangGraph = document.getElementById('btnExportLangGraph');
+  const brainFactoryOutput = document.getElementById('brainFactoryOutput');
 
   // --- Toasts ---
   function showToast(message, type = 'info') {
@@ -833,11 +855,13 @@
       const s = data.settings || {};
       if (settingAppName && s['app.name']) settingAppName.value = s['app.name'];
       if (settingAppVersion && s['app.version']) settingAppVersion.value = s['app.version'];
-      if (settingOutreachCampaign && s['outreach.campaign']) settingOutreachCampaign.value = s['outreach.campaign'];
-      if (settingPilotDays && s['outreach.pilot_duration_days']) settingPilotDays.value = s['outreach.pilot_duration_days'];
+      if (settingOpenRouterKey && s['openrouter.api_key']) settingOpenRouterKey.value = s['openrouter.api_key'];
+      if (settingAutonomyLevel && s['dark_factory.autonomy_level']) settingAutonomyLevel.value = s['dark_factory.autonomy_level'];
+      if (settingWorkerConcurrency && s['agent.worker_concurrency']) settingWorkerConcurrency.value = s['agent.worker_concurrency'];
     } catch (err) {}
   }
 
+  const settingsForm = document.getElementById('settingsForm');
   if (settingsForm) {
     settingsForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -845,15 +869,165 @@
         await fetchJson('/api/settings', {
           method: 'POST',
           body: JSON.stringify({
-            'app.name': settingAppName?.value.trim(),
-            'app.version': settingAppVersion?.value.trim(),
-            'outreach.campaign': settingOutreachCampaign?.value.trim(),
-            'outreach.pilot_duration_days': settingPilotDays?.value.trim(),
+            'app.name': settingAppName?.value.trim() || 'Continuity OS · Universal Agentic Engine',
+            'app.version': settingAppVersion?.value.trim() || '1.0.0',
+            'openrouter.api_key': settingOpenRouterKey?.value.trim() || '',
+            'dark_factory.autonomy_level': settingAutonomyLevel?.value.trim() || '4',
+            'agent.worker_concurrency': settingWorkerConcurrency?.value.trim() || '4',
           }),
         });
         showToast('Settings saved successfully', 'success');
       } catch (err) {
         showToast(`Failed to save settings: ${err.message}`, 'error');
+      }
+    });
+  }
+
+  // --- Archon 2 Event Listeners ---
+  if (btnArchonPlan) {
+    btnArchonPlan.addEventListener('click', async () => {
+      const goal = archonGoalInput?.value.trim();
+      if (!goal) return showToast('Please enter a goal', 'error');
+      archonOutput.innerHTML = '<pre class="code-box">Planning Archon 2 DAG...</pre>';
+      try {
+        const res = await fetchJson('/api/archon/plan', {
+          method: 'POST',
+          body: JSON.stringify({ goal }),
+        });
+        archonOutput.innerHTML = `<pre class="code-box">${escapeHtml(JSON.stringify(res, null, 2))}</pre>`;
+        showToast(`Synthesized ${res.tasks.length} DAG tasks`, 'success');
+      } catch (err) {
+        archonOutput.innerHTML = `<pre class="code-box" style="color:var(--accent-red);">${escapeHtml(err.message)}</pre>`;
+      }
+    });
+  }
+
+  if (btnArchonExec) {
+    btnArchonExec.addEventListener('click', async () => {
+      const goal = archonGoalInput?.value.trim();
+      if (!goal) return showToast('Please enter a goal', 'error');
+      archonOutput.innerHTML = '<pre class="code-box">Executing Archon 2 multi-agent loop (Architect -> Builder -> Critic -> Verifier)...</pre>';
+      try {
+        const res = await fetchJson('/api/archon/execute', {
+          method: 'POST',
+          body: JSON.stringify({ goal }),
+        });
+        archonOutput.innerHTML = `<pre class="code-box">${escapeHtml(JSON.stringify(res, null, 2))}</pre>`;
+        showToast(`Execution ${res.status}: ${res.steps_count} steps completed`, 'success');
+      } catch (err) {
+        archonOutput.innerHTML = `<pre class="code-box" style="color:var(--accent-red);">${escapeHtml(err.message)}</pre>`;
+      }
+    });
+  }
+
+  // --- RAG Docling Chunking & Search ---
+  if (btnRagIngest) {
+    btnRagIngest.addEventListener('click', async () => {
+      const text = ragDocInput?.value.trim();
+      if (!text) return showToast('Enter document text', 'error');
+      ragOutput.innerHTML = '<pre class="code-box">Ingesting document with Docling parser...</pre>';
+      try {
+        const res = await fetchJson('/api/rag/ingest', {
+          method: 'POST',
+          body: JSON.stringify({ text, docId: 'doc_user_' + Date.now(), strategy: 'semantic' }),
+        });
+        ragOutput.innerHTML = `<pre class="code-box">${escapeHtml(JSON.stringify(res, null, 2))}</pre>`;
+        showToast(`Indexed ${res.chunks_count} semantic chunks`, 'success');
+      } catch (err) {
+        ragOutput.innerHTML = `<pre class="code-box" style="color:var(--accent-red);">${escapeHtml(err.message)}</pre>`;
+      }
+    });
+  }
+
+  if (btnRagSearch) {
+    btnRagSearch.addEventListener('click', async () => {
+      const query = ragQueryInput?.value.trim();
+      if (!query) return showToast('Enter search query', 'error');
+      ragOutput.innerHTML = '<pre class="code-box">Searching vector store...</pre>';
+      try {
+        const res = await fetchJson('/api/rag/search', {
+          method: 'POST',
+          body: JSON.stringify({ query, limit: 3 }),
+        });
+        ragOutput.innerHTML = `<pre class="code-box">${escapeHtml(JSON.stringify(res, null, 2))}</pre>`;
+        showToast(`Found ${res.hits.length} matches`, 'info');
+      } catch (err) {
+        ragOutput.innerHTML = `<pre class="code-box" style="color:var(--accent-red);">${escapeHtml(err.message)}</pre>`;
+      }
+    });
+  }
+
+  // --- Guardrails Screening ---
+  if (btnRunGuardrail) {
+    btnRunGuardrail.addEventListener('click', async () => {
+      const text = guardrailTextInput?.value.trim();
+      if (!text) return showToast('Enter text to screen', 'error');
+      guardrailOutput.innerHTML = '<pre class="code-box">Evaluating guardrail rules...</pre>';
+      try {
+        const res = await fetchJson('/api/guardrails/check', {
+          method: 'POST',
+          body: JSON.stringify({ text }),
+        });
+        guardrailOutput.innerHTML = `<pre class="code-box">${escapeHtml(JSON.stringify(res, null, 2))}</pre>`;
+        showToast(res.passed ? 'Guardrails passed' : 'Guardrail violations flagged', res.passed ? 'success' : 'error');
+      } catch (err) {
+        guardrailOutput.innerHTML = `<pre class="code-box" style="color:var(--accent-red);">${escapeHtml(err.message)}</pre>`;
+      }
+    });
+  }
+
+  // --- Second Brain & Dark Factory Operations ---
+  if (btnAuditBrain) {
+    btnAuditBrain.addEventListener('click', async () => {
+      brainFactoryOutput.innerHTML = '<pre class="code-box">Auditing Second Brain memory...</pre>';
+      try {
+        const res = await fetchJson('/api/brain/audit');
+        brainFactoryOutput.innerHTML = `<pre class="code-box">${escapeHtml(JSON.stringify(res, null, 2))}</pre>`;
+        showToast(`Memory Health: ${res.health_score}% (${res.status})`, 'success');
+      } catch (err) {
+        brainFactoryOutput.innerHTML = `<pre class="code-box" style="color:var(--accent-red);">${escapeHtml(err.message)}</pre>`;
+      }
+    });
+  }
+
+  if (btnFactoryTriage) {
+    btnFactoryTriage.addEventListener('click', async () => {
+      brainFactoryOutput.innerHTML = '<pre class="code-box">Running Dark Factory issue triage...</pre>';
+      try {
+        const res = await fetchJson('/api/factory/triage', {
+          method: 'POST',
+          body: JSON.stringify({ issueId: '#105', title: 'Fix zero norm division in cosine search', body: 'Handle zero vector safely' }),
+        });
+        brainFactoryOutput.innerHTML = `<pre class="code-box">${escapeHtml(JSON.stringify(res, null, 2))}</pre>`;
+        showToast(`Triage action: ${res.action}`, 'info');
+      } catch (err) {
+        brainFactoryOutput.innerHTML = `<pre class="code-box" style="color:var(--accent-red);">${escapeHtml(err.message)}</pre>`;
+      }
+    });
+  }
+
+  if (btnExportCrew) {
+    btnExportCrew.addEventListener('click', async () => {
+      brainFactoryOutput.innerHTML = '<pre class="code-box">Exporting CrewAI configuration...</pre>';
+      try {
+        const res = await fetchJson('/api/integrations/crewai');
+        brainFactoryOutput.innerHTML = `<pre class="code-box">${escapeHtml(JSON.stringify(res, null, 2))}</pre>`;
+        showToast('Exported CrewAI configuration', 'success');
+      } catch (err) {
+        brainFactoryOutput.innerHTML = `<pre class="code-box" style="color:var(--accent-red);">${escapeHtml(err.message)}</pre>`;
+      }
+    });
+  }
+
+  if (btnExportLangGraph) {
+    btnExportLangGraph.addEventListener('click', async () => {
+      brainFactoryOutput.innerHTML = '<pre class="code-box">Exporting LangGraph configuration...</pre>';
+      try {
+        const res = await fetchJson('/api/integrations/langgraph');
+        brainFactoryOutput.innerHTML = `<pre class="code-box">${escapeHtml(JSON.stringify(res, null, 2))}</pre>`;
+        showToast('Exported LangGraph configuration', 'success');
+      } catch (err) {
+        brainFactoryOutput.innerHTML = `<pre class="code-box" style="color:var(--accent-red);">${escapeHtml(err.message)}</pre>`;
       }
     });
   }

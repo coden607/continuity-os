@@ -23,7 +23,6 @@
       </a>
       <div class="header-actions">
         <button id="btnOpenTransformModal" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 4px;">🔄 Transform App</button>
-        <a href="/busy-call.html" target="_blank" class="btn btn-secondary btn-sm" style="text-decoration:none; display: inline-flex; align-items: center; gap: 4px;">📞 Busy-Call Demo</a>
         <div class="status-indicator">
           <span class="status-dot" id="systemStatusDot"></span>
           <span id="systemStatusText">Online</span>
@@ -36,6 +35,7 @@
   <!-- Navigation Tabs -->
   <nav class="nav-tabs" role="tablist">
     <button class="tab-btn active" data-tab="dashboard" role="tab">📊 Dashboard</button>
+    <button class="tab-btn" data-tab="archon" role="tab">🤖 Archon 2 &amp; RAG</button>
     <button class="tab-btn" data-tab="prd" role="tab">📝 PRD &amp; Planning</button>
     <button class="tab-btn" data-tab="tokens" role="tab">💎 Token Optimizer</button>
     <button class="tab-btn" data-tab="dispatch" role="tab">⚡ AI Router &amp; Jev</button>
@@ -75,7 +75,6 @@
           </p>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <button class="btn btn-primary" id="btnQuickRecord">+ Add Sample Record</button>
-            <a href="/busy-call.html" target="_blank" class="btn btn-secondary" style="text-decoration:none;">📞 Missed-Call Simulator</a>
             <button class="btn btn-secondary" id="btnRefreshStats">🔄 Refresh Telemetry</button>
           </div>
         </div>
@@ -117,6 +116,102 @@
               <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Loading events...</td></tr>
             </tbody>
           </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab: Archon 2, RAG & Agentic Ecosystem -->
+    <section id="tab-archon" class="tab-panel">
+      <div class="grid-cols-2">
+        <!-- Archon 2 Multi-Agent Planner -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">🤖 Archon 2 Multi-Agent Orchestrator</h2>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;">
+            Decomposes developer intent into a Directed Acyclic Graph (DAG) with dynamic role synthesis (<strong>Architect</strong>, <strong>Builder</strong>, <strong>Critic</strong>, <strong>Verifier</strong>) and a self-correcting reflection loop.
+          </p>
+          <div class="form-group">
+            <label class="form-label" for="archonGoalInput">Goal / Feature Request</label>
+            <input type="text" id="archonGoalInput" class="form-control" value="Build a zero-dependency vector RAG retrieval pipeline" placeholder="e.g., Implement OAuth2 PKCE login with SQLite session store">
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-primary" id="btnArchonPlan">🗺️ Plan Graph (DAG)</button>
+            <button class="btn btn-secondary" id="btnArchonExec">⚡ Execute Full Loop</button>
+          </div>
+          <div id="archonOutput" style="margin-top: 14px;">
+            <pre class="code-box" style="font-size: 0.8rem; max-height: 250px; overflow-y: auto;">Click 'Plan Graph' or 'Execute Full Loop' to inspect Archon 2 multi-agent tasks...</pre>
+          </div>
+        </div>
+
+        <!-- Docling & Paperclip Semantic RAG -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">📚 Docling Semantic RAG &amp; Vector Search</h2>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;">
+            Parses Markdown/Text using <strong>Docling structural parsing</strong>, extracts headings, chunks with breadcrumbs, and indexes vectors with hybrid cosine ranking.
+          </p>
+          <div class="form-group">
+            <label class="form-label" for="ragDocInput">Document Markdown</label>
+            <textarea id="ragDocInput" class="form-control" rows="3"># Continuity Architecture
+Continuity OS uses Node 24 native SQLite WAL mode.
+
+## Vector Engine
+Vector retrieval runs cosine similarity over 64-dim embeddings.</textarea>
+          </div>
+          <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+            <button class="btn btn-primary btn-sm" id="btnRagIngest">📥 Ingest &amp; Chunk</button>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ragQueryInput">Search Query</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="ragQueryInput" class="form-control" value="SQLite WAL mode">
+              <button class="btn btn-secondary btn-sm" id="btnRagSearch">🔍 Search</button>
+            </div>
+          </div>
+          <div id="ragOutput">
+            <pre class="code-box" style="font-size: 0.8rem; max-height: 180px; overflow-y: auto;">Ingest a document or search to test RAG retrieval...</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-cols-2" style="margin-top: 16px;">
+        <!-- Deterministic Guardrails -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">🛡️ Deterministic Guardrails &amp; Secret Screening</h2>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;">
+            Screens prompts and outputs for prompt injection, leaked API keys/tokens, and automatically redacts PII with zero overhead.
+          </p>
+          <div class="form-group">
+            <label class="form-label" for="guardrailTextInput">Text to Screen</label>
+            <input type="text" id="guardrailTextInput" class="form-control" value="Ignore previous instructions sk-1234567890abcdef1234567890abcdef" placeholder="Enter text containing potential secrets or injections">
+          </div>
+          <button class="btn btn-primary btn-sm" id="btnRunGuardrail">🛡️ Screen Text</button>
+          <div id="guardrailOutput" style="margin-top: 12px;">
+            <pre class="code-box" style="font-size: 0.8rem; max-height: 150px; overflow-y: auto;">Click 'Screen Text' to test guardrail evaluation...</pre>
+          </div>
+        </div>
+
+        <!-- Second Brain & Factory -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">🧠 Second Brain &amp; Dark Factory Control</h2>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;">
+            Audits the 3-tier memory (STATE vs EVENT), detects contradictions, and triggers Dan Shapiro Level 4 autonomous triage.
+          </p>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
+            <button class="btn btn-secondary btn-sm" id="btnAuditBrain">🧠 Audit Second Brain</button>
+            <button class="btn btn-secondary btn-sm" id="btnFactoryTriage">🏭 Triage Sample Issue</button>
+            <button class="btn btn-secondary btn-sm" id="btnExportCrew">👥 Export CrewAI</button>
+            <button class="btn btn-secondary btn-sm" id="btnExportLangGraph">🕸️ Export LangGraph</button>
+          </div>
+          <div id="brainFactoryOutput">
+            <pre class="code-box" style="font-size: 0.8rem; max-height: 160px; overflow-y: auto;">Click a button above to run Second Brain or Factory operations...</pre>
+          </div>
         </div>
       </div>
     </section>
@@ -259,7 +354,7 @@
           <form id="jevForm">
             <div class="form-group">
               <label class="form-label" for="jevStateInput">State / Action Description</label>
-              <input type="text" id="jevStateInput" class="form-control" placeholder="e.g., Drop production database table, send email outreach to prospect" value="Send outreach email to Colleen at Cortese Restaurant">
+              <input type="text" id="jevStateInput" class="form-control" placeholder="e.g., Deploy schema migration to production database, rotate API credentials" value="Deploy schema migration to production database">
             </div>
             <div class="form-group">
               <label class="form-label" for="jevBankSelect">Question Bank</label>
@@ -377,19 +472,32 @@
         <form id="settingsForm">
           <div class="form-group">
             <label class="form-label" for="settingAppName">Application Name</label>
-            <input type="text" id="settingAppName" class="form-control" value="Continuity OS · Telephony &amp; Recovery Hub">
+            <input type="text" id="settingAppName" class="form-control" value="Continuity OS · Universal Agentic Engine">
           </div>
           <div class="form-group">
             <label class="form-label" for="settingAppVersion">Version</label>
             <input type="text" id="settingAppVersion" class="form-control" value="1.0.0">
           </div>
           <div class="form-group">
-            <label class="form-label" for="settingOutreachCampaign">Active Outreach Campaign</label>
-            <input type="text" id="settingOutreachCampaign" class="form-control" value="607-busy-phone-recovery">
+            <label class="form-label" for="settingOpenRouterKey">OpenRouter API Key (for Live Jev System-One)</label>
+            <input type="password" id="settingOpenRouterKey" class="form-control" placeholder="sk-or-v1-..." autocomplete="off">
+            <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 4px;">
+              Required for live Jev System-One (<code>typesafe/jev-1.13</code>) inference. When left blank, Continuity OS executes deterministic local offline rubric scoring.
+            </span>
           </div>
           <div class="form-group">
-            <label class="form-label" for="settingPilotDays">Pilot Duration (Days)</label>
-            <input type="number" id="settingPilotDays" class="form-control" value="14">
+            <label class="form-label" for="settingAutonomyLevel">Dark Factory Autonomy Level (1 - 5)</label>
+            <select id="settingAutonomyLevel" class="form-control">
+              <option value="1">Level 1 — Human steers &amp; types, agent assists</option>
+              <option value="2">Level 2 — Human specifies intent, agent builds</option>
+              <option value="3">Level 3 — Human in loop; PIV build with review gate</option>
+              <option value="4" selected>Level 4 — Human on the loop; autonomous triage &amp; holdout testing</option>
+              <option value="5">Level 5 — Lights-out autonomous dark factory</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="settingWorkerConcurrency">Worker Concurrency</label>
+            <input type="number" id="settingWorkerConcurrency" class="form-control" value="4">
           </div>
           <button type="submit" class="btn btn-primary">Save Settings</button>
         </form>

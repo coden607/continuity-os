@@ -374,13 +374,24 @@ ${nonGoals || '- Complex third-party integrations\n- Multi-region compliance cer
             return sendJson(res, 400, { error: 'Missing state or task to evaluate' });
           }
 
+          const openrouterKey = process.env.OPENROUTER_API_KEY || db.getSetting('openrouter.api_key') || '';
           const jevScript = join(ROOT_DIR, 'skills', 'jev-gate', 'scripts', 'decide.py');
           if (existsSync(jevScript)) {
             try {
               const args = [jevScript, '--state', state, '--bank', bank, '--floor', floor];
-              const { stdout } = await execFileAsync('python3', args);
+              const env = { ...process.env };
+              if (openrouterKey) {
+                env.OPENROUTER_API_KEY = openrouterKey;
+              }
+              const { stdout } = await execFileAsync('python3', args, { env });
               const result = JSON.parse(stdout.trim());
-              db.logEvent('jev.decision', { state, bank, policy: result.policy });
+              result.openrouter_configured = !!openrouterKey;
+              result.mode = openrouterKey ? 'openrouter-live' : 'offline-fallback';
+              result.status_note = openrouterKey
+                ? 'Operating via live OpenRouter System-One endpoint (typesafe/jev-1.13)'
+                : 'Operating via local deterministic offline rubric fallback. Provide OPENROUTER_API_KEY in Settings or environment for live OpenRouter inference.';
+
+              db.logEvent('jev.decision', { state, bank, policy: result.policy, mode: result.mode });
               return sendJson(res, 200, { result });
             } catch (err: any) {
               return sendJson(res, 500, { error: 'Jev decision evaluation failed', details: err.message });
@@ -596,8 +607,9 @@ ${nonGoals || '- Complex third-party integrations\n- Multi-region compliance cer
             db.saveRecord('contact_001', 'contact', { name: 'Alice Smith', email: 'alice@acme.com', company: 'Acme Corp' });
             createdCount = 2;
           } else if (preset === 'voice') {
-            db.setSetting('outreach.campaign', 'voice-telephony');
-            db.saveRecord('call_001', 'call_log', { caller: '+16075550199', status: 'busy_recovered', durationSec: 42 });
+            db.setSetting('voice.provider', 'webrtc_stream');
+            db.setSetting('voice.sample_rate', '16000');
+            db.saveRecord('voice_session_001', 'voice_session', { session_id: 'sess_101', status: 'completed', durationSec: 32 });
             createdCount = 1;
           } else if (preset === 'agent') {
             db.saveRecord('agent_task_001', 'task', { title: 'Autonomous repo security sweep', tier: 'code', status: 'queued' });
@@ -615,6 +627,127 @@ ${nonGoals || '- Complex third-party integrations\n- Multi-region compliance cer
 
           db.logEvent('app.transformed', { preset, appName, createdCount });
           return sendJson(res, 200, { success: true, preset, appName, createdCount });
+        }
+
+        // --- Archon & Archon 2 Multi-Agent Engine ---
+        if (pathname === '/api/archon/plan' && method === 'POST') {
+          const body = await parseBody(req);
+          const goal = (body.goal || '').trim();
+          if (!goal) return sendJson(res, 400, { error: 'Missing goal' });
+          const { stdout } = await execFileAsync('python3', [join(ROOT_DIR, 'orchestration', 'bridge.py'), 'archon-plan', '--goal', goal]);
+          return sendJson(res, 200, JSON.parse(stdout));
+        }
+
+        if (pathname === '/api/archon/execute' && method === 'POST') {
+          const body = await parseBody(req);
+          const goal = (body.goal || '').trim();
+          if (!goal) return sendJson(res, 400, { error: 'Missing goal' });
+          const { stdout } = await execFileAsync('python3', [join(ROOT_DIR, 'orchestration', 'bridge.py'), 'archon-exec', '--goal', goal]);
+          const result = JSON.parse(stdout);
+          db.logEvent('archon.executed', { goal, status: result.status, stepsCount: result.steps_count });
+          return sendJson(res, 200, result);
+        }
+
+        // --- Dark Factory Engine (Dan Shapiro Autonomy Levels 1-5) ---
+        if (pathname === '/api/factory/triage' && method === 'POST') {
+          const body = await parseBody(req);
+          const issueId = body.issueId || '#1';
+          const title = (body.title || '').trim();
+          const issueBody = body.body || '';
+          if (!title) return sendJson(res, 400, { error: 'Missing issue title' });
+          const { stdout } = await execFileAsync('python3', [join(ROOT_DIR, 'orchestration', 'bridge.py'), 'factory-triage', '--issue-id', issueId, '--title', title, '--body', issueBody]);
+          return sendJson(res, 200, JSON.parse(stdout));
+        }
+
+        if (pathname === '/api/factory/build' && method === 'POST') {
+          const body = await parseBody(req);
+          const issueId = body.issueId || '#1';
+          const title = (body.title || '').trim();
+          const changes = body.changes || 'Implemented solution';
+          const { stdout } = await execFileAsync('python3', [join(ROOT_DIR, 'orchestration', 'bridge.py'), 'factory-build', '--issue-id', issueId, '--title', title, '--changes', changes]);
+          return sendJson(res, 200, JSON.parse(stdout));
+        }
+
+        // --- Second Brain Memory Engine (STATE vs EVENT + Anti-Rot Audit) ---
+        if (pathname === '/api/brain/state' && method === 'GET') {
+          const { stdout } = await execFileAsync('python3', [join(ROOT_DIR, 'orchestration', 'bridge.py'), 'brain-state']);
+          return sendJson(res, 200, JSON.parse(stdout));
+        }
+
+        if (pathname === '/api/brain/ingest' && method === 'POST') {
+          const body = await parseBody(req);
+          const text = (body.text || '').trim();
+          if (!text) return sendJson(res, 400, { error: 'Missing text to ingest' });
+          const { stdout } = await execFileAsync('python3', [join(ROOT_DIR, 'orchestration', 'bridge.py'), 'brain-ingest', '--text', text]);
+          return sendJson(res, 200, JSON.parse(stdout));
+        }
+
+        if ((pathname === '/api/brain/audit' && method === 'GET') || (pathname === '/api/brain/audit' && method === 'POST')) {
+          const { stdout } = await execFileAsync('python3', [join(ROOT_DIR, 'orchestration', 'bridge.py'), 'brain-audit']);
+          return sendJson(res, 200, JSON.parse(stdout));
+        }
+
+        // --- RAG, Vector & Docling / Paperclip Parsing Engine ---
+        if (pathname === '/api/rag/ingest' && method === 'POST') {
+          const body = await parseBody(req);
+          const docId = (body.docId || 'doc_' + Date.now()).trim();
+          const text = (body.text || '').trim();
+          const strategy = body.strategy || 'semantic';
+          if (!text) return sendJson(res, 400, { error: 'Missing document text' });
+          const { stdout } = await execFileAsync('python3', [join(ROOT_DIR, 'orchestration', 'bridge.py'), 'rag-ingest', '--doc-id', docId, '--text', text, '--strategy', strategy]);
+          return sendJson(res, 200, JSON.parse(stdout));
+        }
+
+        if (pathname === '/api/rag/search' && method === 'POST') {
+          const body = await parseBody(req);
+          const query = (body.query || '').trim();
+          const limit = parseInt(body.limit || '5', 10);
+          if (!query) return sendJson(res, 400, { error: 'Missing query' });
+          const { stdout } = await execFileAsync('python3', [join(ROOT_DIR, 'orchestration', 'bridge.py'), 'rag-search', '--query', query, '--limit', String(limit)]);
+          return sendJson(res, 200, JSON.parse(stdout));
+        }
+
+        // --- Guardrails & Pydantic Schema Screening ---
+        if (pathname === '/api/guardrails/check' && method === 'POST') {
+          const body = await parseBody(req);
+          const text = (body.text || '').trim();
+          const isOutput = !!body.isOutput;
+          const context = body.context || '';
+          if (!text) return sendJson(res, 400, { error: 'Missing text to check' });
+          const args = [join(ROOT_DIR, 'orchestration', 'bridge.py'), 'guardrails-check', '--text', text];
+          if (isOutput) args.push('--is-output');
+          if (context) args.push('--context', context);
+          const { stdout } = await execFileAsync('python3', args);
+          return sendJson(res, 200, JSON.parse(stdout));
+        }
+
+        // --- Integrations: CrewAI & LangGraph ---
+        if (pathname === '/api/integrations/crewai' && method === 'GET') {
+          const { stdout } = await execFileAsync('python3', [join(ROOT_DIR, 'orchestration', 'bridge.py'), 'crewai-export']);
+          return sendJson(res, 200, JSON.parse(stdout));
+        }
+
+        if (pathname === '/api/integrations/langgraph' && method === 'GET') {
+          const { stdout } = await execFileAsync('python3', [join(ROOT_DIR, 'orchestration', 'bridge.py'), 'langgraph-export']);
+          return sendJson(res, 200, JSON.parse(stdout));
+        }
+
+        // --- Self-Learning & Heuristics Evolution ---
+        if (pathname === '/api/learning/evolve' && method === 'POST') {
+          const body = await parseBody(req);
+          const failureTrace = (body.failureTrace || '').trim();
+          if (!failureTrace) return sendJson(res, 400, { error: 'Missing failureTrace' });
+          const { stdout } = await execFileAsync('python3', [join(ROOT_DIR, 'orchestration', 'bridge.py'), 'learning-evolve', '--failure-trace', failureTrace]);
+          return sendJson(res, 200, JSON.parse(stdout));
+        }
+
+        // --- n8n Workflow Webhook Ingestion ---
+        if (pathname === '/api/webhooks/n8n' && method === 'POST') {
+          const body = await parseBody(req);
+          const { stdout } = await execFileAsync('python3', [join(ROOT_DIR, 'orchestration', 'bridge.py'), 'n8n-webhook', '--payload', JSON.stringify(body)]);
+          const job = db.enqueueJob('n8n_workflow', body);
+          db.logEvent('n8n.webhook_received', { jobId: job.id, workflowId: body.workflowId });
+          return sendJson(res, 200, { received: true, jobId: job.id, parsed: JSON.parse(stdout) });
         }
 
         return sendJson(res, 404, { error: 'Endpoint not found', path: pathname });

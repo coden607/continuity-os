@@ -192,6 +192,53 @@ def cmd_prds(args):
         print(f" - {f.name} ({f.stat().st_size} bytes)")
     return 0
 
+def cmd_archon(args):
+    cmd = [sys.executable, str(BASE_DIR / "orchestration" / "bridge.py"), "archon-exec" if args.exec else "archon-plan", "--goal", args.goal]
+    res = subprocess.run(cmd, capture_output=True, text=True)
+    if res.returncode != 0:
+        print(f"Error: {res.stderr}", file=sys.stderr)
+        return res.returncode
+    print(res.stdout)
+    return 0
+
+def cmd_rag(args):
+    bridge = BASE_DIR / "orchestration" / "bridge.py"
+    if args.action == "search":
+        cmd = [sys.executable, str(bridge), "rag-search", "--query", args.text, "--limit", str(args.limit)]
+    else:
+        cmd = [sys.executable, str(bridge), "rag-ingest", "--doc-id", args.doc_id or "cli_doc", "--text", args.text]
+    res = subprocess.run(cmd, capture_output=True, text=True)
+    print(res.stdout)
+    return res.returncode
+
+def cmd_guardrails(args):
+    cmd = [sys.executable, str(BASE_DIR / "orchestration" / "bridge.py"), "guardrails-check", "--text", args.text]
+    res = subprocess.run(cmd, capture_output=True, text=True)
+    print(res.stdout)
+    return res.returncode
+
+def cmd_brain(args):
+    bridge = BASE_DIR / "orchestration" / "bridge.py"
+    if args.action == "audit":
+        cmd = [sys.executable, str(bridge), "brain-audit"]
+    elif args.action == "state":
+        cmd = [sys.executable, str(bridge), "brain-state"]
+    else:
+        cmd = [sys.executable, str(bridge), "brain-ingest", "--text", args.text]
+    res = subprocess.run(cmd, capture_output=True, text=True)
+    print(res.stdout)
+    return res.returncode
+
+def cmd_factory(args):
+    bridge = BASE_DIR / "orchestration" / "bridge.py"
+    if args.action == "triage":
+        cmd = [sys.executable, str(bridge), "factory-triage", "--issue-id", args.issue, "--title", args.title, "--body", args.body or ""]
+    else:
+        cmd = [sys.executable, str(bridge), "factory-build", "--issue-id", args.issue, "--title", args.title]
+    res = subprocess.run(cmd, capture_output=True, text=True)
+    print(res.stdout)
+    return res.returncode
+
 def cmd_serve(args):
     env = os.environ.copy()
     if args.port:
@@ -256,9 +303,38 @@ def main():
     p_serve.add_argument("--port", type=int, default=3000, help="Port to listen on")
     p_serve.set_defaults(func=cmd_serve)
 
-    # test
-    p_test = subparsers.add_parser("test", help="Run automated test suite")
-    p_test.set_defaults(func=cmd_test)
+    # archon
+    p_archon = subparsers.add_parser("archon", help="Run Archon 2 multi-agent graph planner/executor")
+    p_archon.add_argument("goal", help="High-level goal or task description")
+    p_archon.add_argument("--exec", action="store_true", help="Execute the graph after planning")
+    p_archon.set_defaults(func=cmd_archon)
+
+    # rag
+    p_rag = subparsers.add_parser("rag", help="RAG ingestion and hybrid vector search")
+    p_rag.add_argument("action", choices=["search", "ingest"], help="Action to perform")
+    p_rag.add_argument("text", help="Search query or document text")
+    p_rag.add_argument("--doc-id", help="Document ID for ingestion")
+    p_rag.add_argument("--limit", type=int, default=5, help="Search limit")
+    p_rag.set_defaults(func=cmd_rag)
+
+    # guardrails
+    p_guard = subparsers.add_parser("guardrails", help="Evaluate prompt/output against safety guardrails")
+    p_guard.add_argument("text", help="Text to screen")
+    p_guard.set_defaults(func=cmd_guardrails)
+
+    # brain
+    p_brain = subparsers.add_parser("brain", help="Second Brain memory operations")
+    p_brain.add_argument("action", choices=["audit", "state", "ingest"], help="Memory action")
+    p_brain.add_argument("--text", default="", help="Text to ingest (for ingest action)")
+    p_brain.set_defaults(func=cmd_brain)
+
+    # factory
+    p_fac = subparsers.add_parser("factory", help="Dark Factory issue triage and build")
+    p_fac.add_argument("action", choices=["triage", "build"], help="Factory action")
+    p_fac.add_argument("--issue", default="#1", help="Issue identifier")
+    p_fac.add_argument("--title", required=True, help="Issue title")
+    p_fac.add_argument("--body", default="", help="Issue description")
+    p_fac.set_defaults(func=cmd_factory)
 
     args = parser.parse_args()
     return args.func(args)

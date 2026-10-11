@@ -30,17 +30,17 @@ PRESETS = {
         }
     },
     "voice": {
-        "title": "Continuity OS · Voice & Missed-Call Recovery Hub",
-        "description": "Carrier-level busy forward recovery, Twilio webhooks, SMS callback, and TCPA/DNC safety.",
+        "title": "Continuity OS · Voice & Conversational AI Hub",
+        "description": "Provider-neutral voice AI engine, stream webhooks, automated call transcription, and audio processing.",
         "records": [
-            {"id": "call_001", "type": "call_log", "status": "completed", "data": {"caller": "+16075550199", "status": "busy_forwarded", "smsSent": True, "durationSec": 35}},
-            {"id": "prospect_cortese", "type": "prospect", "status": "qualified", "data": {"name": "Cortese Restaurant", "phone": "(607) 723-6477", "offer": "Free 2-Week Pilot", "status": "ready-to-send"}}
+            {"id": "call_sample_001", "type": "call_session", "status": "completed", "data": {"session_id": "sess_8912", "durationSec": 42, "sentiment": "positive", "intent": "inquiry"}},
+            {"id": "call_sample_002", "type": "call_session", "status": "in_progress", "data": {"session_id": "sess_8913", "durationSec": 15, "sentiment": "neutral", "intent": "support"}}
         ],
         "settings": {
-            "app.name": "Continuity OS · Voice & Recovery Hub",
-            "outreach.campaign": "607-busy-phone-recovery",
-            "outreach.pilot_duration_days": "14",
-            "outreach.demo_url": "https://cortese-digital-xwbq.vercel.app"
+            "app.name": "Continuity OS · Voice & Conversational AI Hub",
+            "voice.provider": "webrtc_stream",
+            "voice.sample_rate": "16000",
+            "voice.audio_format": "pcm16"
         }
     },
     "agent": {

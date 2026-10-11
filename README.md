@@ -44,30 +44,33 @@ That gives you: 7 skills in every detected CLI dir + the whole scaffold in `~/co
 - **Monthly:** models.yaml price review (cron `17 9 1 * *`)
 - **Always:** verify on disk, never trust completion events
 
-## Universal Fullstack App Engine & PWA
-Continuity OS includes a zero-dependency fullstack application template with a mobile-ready PWA shell, native Node 24 SQLite storage, REST endpoints, automated tests, and all 51 canonical skills permanently integrated.
+## Universal Fullstack & Modern Agentic Engine
+Continuity OS includes a zero-dependency fullstack application template with a mobile-ready PWA shell, native Node 24 SQLite storage, REST endpoints, automated tests, and the complete modern agentic architecture permanently integrated.
 
-- **Frontend PWA:** Responsive dashboard with 8 functional modules: Dashboard, PRD Planning Studio, Token Optimizer, AI Router & Jev Gate, Skills Catalog, Records CRM, API Console, and Settings (`public/index.html`, `public/app.js`, `public/sw.js`).
-- **PRD Planning Studio:** Problem-first, evidence-grounded PRD generation (`/api/prds`, `/api/prds/generate`, `factory/prd/`).
-- **Token Spend Optimizer:** Analyzes prompt tokens, pricing across tiers (Frontier vs Standard vs Fast vs Jev), prompt-caching hit structures, and savings percentages (`/api/tokens/analyze`, `orchestration/optimizer.py`).
-- **Jev System-One Gate:** Offline rubric + online OpenRouter decision gate for `act-gate`, `mode-router`, `retry-stop`, and `legal-risk` (`/api/jev`, `skills/jev-gate/scripts/decide.py`).
-- **Canonical Skills (51):** All 51 skills permanently committed in `skills/` and synced to `~/.claude/skills`, `~/.codex/skills`, `~/.openclaw/skills`, `~/.agents/skills`, and `~/.gemini/antigravity-cli/skills`.
-- **Backend Runtime:** Node.js 24 + native `node:sqlite` + native TypeScript execution (`server/server.ts`, `server/db.ts`).
-- **Unified Python CLI:** `python3 manage.py` (`status`, `db-stats`, `tokens`, `jev`, `prds`, `add-record`, `dispatch`, `serve`, `test`).
-- **Adaptation Guide:** Read [APP_GUIDE.md](file:///root/Projects/continuity-os/APP_GUIDE.md) to convert this into a CRM, AI voice system, SaaS app, or autonomous agent runner.
+- **🤖 Archon & Archon 2 Multi-Agent Engine:** Directed Acyclic Graph (DAG) task decomposition, dynamic role synthesis (`Architect`, `Builder`, `Critic`, `Verifier`), reflection loops (`Generator -> Critic -> Refiner`), and execution trace logging (`orchestration/archon/`, `/api/archon/plan`, `/api/archon/execute`).
+- **🏭 Dark Factory (Autonomy Levels 1–5):** Dan Shapiro's 5 autonomy levels for unattended coding. Stateful issue triage, automated holdout test verification, and automated PR generation (`factory/engine.py`, `/api/factory/triage`, `/api/factory/build`).
+- **🧠 3-Tier Second Brain Memory:** Active mutable truth (`MEMORY.md`), daily immutable event journal (`daily/YYYY-MM-DD.md`), and curated knowledge base. Automated contradiction detection and anti-rot memory health audit (`second-brain/engine.py`, `/api/brain/state`, `/api/brain/audit`).
+- **📚 Docling & Paperclip Semantic RAG:** Document parsing preserving markdown headings, recursive character chunker, and structural semantic chunker with breadcrumbs. Cosine vector similarity + BM25 keyword hybrid search (`rag/`, `/api/rag/ingest`, `/api/rag/search`).
+- **🛡️ Deterministic Guardrails & Pydantic V2:** Input/output safety screening, prompt injection detection, API key/credential leak prevention, PII redactor, and typed schemas (`guardrails/`, `/api/guardrails/check`).
+- **👥 CrewAI, LangGraph & n8n Compatibility:** Native export to CrewAI crews, LangGraph StateGraphs, and bi-directional n8n workflow triggers (`integrations/`, `/api/integrations/crewai`, `/api/webhooks/n8n`).
+- **⚖️ Jev System-One Gate (OpenRouter):** Sub-100ms decision gating for `act-gate`, `mode-router`, `retry-stop`, and `legal-risk`. Queries OpenRouter (`OPENROUTER_API_KEY`) for live model inference (`typesafe/jev-1.13`), with deterministic local rubric scoring as an offline fallback (`orchestration/jev_decide.py`, `/api/jev`).
+- **💎 Token Spend Optimizer:** Analyzes prompt tokens, pricing across tiers (Frontier vs Standard vs Fast vs Jev), prompt-caching hit structures, and savings percentages (`/api/tokens/analyze`, `orchestration/optimizer.py`).
+- **🧠 Canonical Skills (51):** All 51 skills permanently committed in `skills/` and synced to all 5 CLI directories (`~/.claude/skills`, `~/.codex/skills`, `~/.openclaw/skills`, `~/.agents/skills`, and `~/.gemini/antigravity-cli/skills`).
+- **⚡ Zero-Dependency Backend:** Node.js 24 + native `node:sqlite` WAL + native TypeScript execution (`server/server.ts`, `server/db.ts`).
+- **🛠️ Unified Python CLI:** `python3 manage.py` (`archon`, `rag`, `guardrails`, `brain`, `factory`, `tokens`, `jev`, `prds`, `scaffold`, `serve`, `test`).
 
 ```bash
-# Run tests (15/15 passing) & typecheck
+# Run tests (26/26 passing) & typecheck
 npm test && npm run typecheck
 
 # Start local server (http://localhost:3000)
 npm start
 
 # Python management CLI
-python3 manage.py status
-python3 manage.py tokens "Analyze this prompt"
+python3 manage.py archon "Build automated SQLite migration harness"
+python3 manage.py brain audit
+python3 manage.py guardrails "Test prompt injection sk-1234..."
 python3 manage.py jev --state "Perform database migration" --bank act-gate
-python3 manage.py dispatch --duty "Your agent task"
 ```
 
 ## Provenance
