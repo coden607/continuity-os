@@ -88,7 +88,7 @@ PRESETS = {
         "description": "Product catalog, order records, inventory tracker, and Stripe webhook payment seam.",
         "records": [
             {"id": "sku_001", "type": "product", "status": "active", "data": {"title": "Continuity OS Pro License", "price": 99.00, "inventory": 1000, "sku": "CTY-PRO"}},
-            {"id": "sku_002", "type": "product", "status": "active", "data": {"title": "AI Telephony 2-Week Pilot Setup", "price": 0.00, "inventory": 50, "sku": "PILOT-14D"}}
+            {"id": "sku_002", "type": "product", "status": "active", "data": {"title": "Dedicated Support SLA Package", "price": 250.00, "inventory": 50, "sku": "SLA-GOLD"}}
         ],
         "settings": {
             "app.name": "Continuity OS · Digital Storefront",
