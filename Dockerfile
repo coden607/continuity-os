@@ -3,9 +3,10 @@ FROM node:24-slim
 
 WORKDIR /app
 
-# Install Python 3 for Continuity OS orchestration
+# Install Python 3, pip, and sqlite3
 RUN apt-get update && \
-    apt-get install -y python3 sqlite3 --no-install-recommends && \
+    apt-get install -y python3 python3-pip sqlite3 --no-install-recommends && \
+    pip install --no-cache-dir --break-system-packages pydantic && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy package descriptors
